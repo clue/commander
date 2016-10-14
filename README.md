@@ -22,7 +22,7 @@ to execute individual functions depending on the arguments given.
     * [handleArgv()](#handleargv)
     * [handleArgs()](#handleargs)
   * [Route](#route)
-  * [NoRouteFoundException](#noroutefoundexception]
+  * [NoRouteFoundException](#noroutefoundexception)
 * [Install](#install)
 * [License](#license)
 
@@ -72,7 +72,7 @@ $router = new Router();
 #### add()
 
 The `add(string $route, callable $handler) : Router` method can be used to
-register a new [Route](#route) with this Router.
+register a new [`Route`](#route) with this Router.
 
 It accepts a route expression to match and a route callback that will be
 executed when this route expression matches.
@@ -166,7 +166,7 @@ $router->add('user dump [<names>...]', function (array $args) {
 #### remove()
 
 The `remove(Router $route)` method can be used to remove the given
-[Route](#route) object from the registered routes.
+[`Route`](#route) object from the registered routes.
 
 ```php
 $route = $router->add('hello <name>', $fn);
@@ -178,7 +178,7 @@ It will throw an `UnderflowException` if the given route does not exist.
 #### getRoutes()
 
 The `getRoutes(): Route[]` method can be used to return an array of all
-registered [Route](#route) objects.
+registered [`Route`](#route) objects.
 
 ```php
 echo 'Usage help:' . PHP_EOL;
@@ -195,7 +195,7 @@ The `execArgv(array $argv = null) : void` method can be used to
 execute by matching the `argv` against all registered routes and then exit.
 
 You can explicitly pass in your `$argv` or it will automatically use the
-values from the $_SERVER superglobal. The `argv` is an array that will
+values from the `$_SERVER` superglobal. The `argv` is an array that will
 always start with the calling program as the first element. We simply
 ignore this first element and then process the remaining elements
 according to the registered routes.
@@ -209,7 +209,7 @@ non-zero exit code.
 
 Note that this is for convenience only and only useful for the most
 simple of all programs. If you need more control, then consider using
-the underlying [handleArgv()](#handleargv) method and handle any error situations
+the underlying [`handleArgv()`](#handleargv) method and handle any error situations
 yourself.
 
 #### handleArgv()
@@ -218,7 +218,7 @@ The `handleArgv(array $argv = null) : mixed` method can be used to
 execute by matching the `argv` against all registered routes and then return.
 
 You can explicitly pass in your `$argv` or it will automatically use the
-values from the $_SERVER superglobal. The `argv` is an array that will
+values from the `$_SERVER` superglobal. The `argv` is an array that will
 always start with the calling program as the first element. We simply
 ignore this first element and then process the remaining elements
 according to the registered routes.
@@ -236,14 +236,14 @@ $length = $router->handleArgv(array('program', 'hello', 'test'));
 assert($length === 4);
 ```
 
-If no route could be found, it will throw a `NoRouteFoundException`.
+If no route could be found, it will throw a [`NoRouteFoundException`](#noroutefoundexception).
 
 ```php
 // throws NoRouteFoundException
 $router->handleArgv(array('program', 'invalid'));
 ```
 
-If the route callback throws an Exception, it will pass through this Exception.
+If the route callback throws an `Exception`, it will pass through this `Exception`.
 
 ```php
 $router->add('hello <name>', function (array $args) {
@@ -294,6 +294,28 @@ assert($args === array('hello', 'Christian Lück'));
 $router->handleArgs($args);
 ```
 
+If no route could be found, it will throw a [`NoRouteFoundException`](#noroutefoundexception).
+
+```php
+// throws NoRouteFoundException
+$router->handleArgs(array('invalid'));
+```
+
+If the route callback throws an `Exception`, it will pass through this `Exception`.
+
+```php
+$router->add('hello <name>', function (array $args) {
+    if ($args['name'] === 'admin') {
+        throw new InvalidArgumentException();
+    }
+    
+    return strlen($args['name']);
+});
+
+// throws InvalidArgumentException
+$router->handleArgs(array('hello', 'admin'));
+```
+
 ### Route
 
 The `Route` represents a single registered route within the [Router](#router).
@@ -301,12 +323,12 @@ The `Route` represents a single registered route within the [Router](#router).
 It holds the required route tokens to match and the route callback to
 execute if this route matches.
 
-See [Router](#router).
+See [`Router`](#router).
 
 ### NoRouteFoundException
 
-The `NoRouteFoundException` will be raised by [handleArgv()](#handleargv)
-or [handleArgs()](#handleargs) if no matching route could be found.
+The `NoRouteFoundException` will be raised by [`handleArgv()`](#handleargv)
+or [`handleArgs()`](#handleargs) if no matching route could be found.
 It extends PHP's built-in `RuntimeException`.
 
 ## Install
