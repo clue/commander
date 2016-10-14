@@ -336,9 +336,13 @@ It extends PHP's built-in `RuntimeException`.
 The recommended way to install this library is [through Composer](http://getcomposer.org).
 [New to Composer?](http://getcomposer.org/doc/00-intro.md)
 
+This will install the latest supported version:
+
 ```bash
-$ composer require clue/commander:dev-master
+$ composer require clue/commander:^0.1
 ```
+
+See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
 
 ## License
 
