@@ -1,0 +1,22 @@
+{
+    "name": "clue/commander",
+    "description": "Finally a sane way to register available commands and arguments and match your command line in PHP.",
+    "keywords": ["arguments", "command", "command line", "argv", "args", "parse"],
+    "homepage": "https://github.com/clue/php-commander",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Christian Lück",
+            "email": "christian@lueck.tv"
+        }
+    ],
+    "autoload": {
+        "psr-4": { "Clue\\Commander\\": "src/" }
+    },
+    "require": {
+        "php": ">=5.3"
+    },
+    "require-dev": {
+        "clue/arguments": "^1.0"
+    }
+}
