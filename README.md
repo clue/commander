@@ -117,6 +117,26 @@ $router->add('user list', function () {
 // does not match: user list hello (too many arguments)
 ```
 
+You can use alternative blocks to support any of the static keywords like this:
+
+```php
+$router->add('user (list | listing | ls)', function () {
+    echo 'Here are all our users…' . PHP_EOL;
+});
+// matches: user list
+// matches: user listing
+// matches: user ls
+// does not match: user (missing required keyword)
+// does not match: user list hello (too many arguments)
+```
+
+Note that alternative blocks can be added to pretty much any token in your route
+expression.
+In particular, you also combine them with optional blocks (see below) in order
+to optionally accept any of the alternatives, but never multiple.
+Note that alternative blocks always required parentheses in order to make its
+scope more obvious.
+
 You can use any number of placeholders to mark required arguments like this:
 
 ```php

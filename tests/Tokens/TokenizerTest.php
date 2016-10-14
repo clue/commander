@@ -69,6 +69,13 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'word with optional ellipse short option' => array(
                 'hello [-v...]'
             ),
+
+            'alternative words' => array(
+                '(hello | world)'
+            ),
+            'alternative long or short options' => array(
+                '(--help | -h)'
+            ),
         );
     }
 
@@ -134,7 +141,20 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             ),
             'long option with empty placeholder name' => array(
                 '--date=<>'
-            )
+            ),
+
+            'empty sentence in alternative block' => array(
+                '()'
+            ),
+            'single word in alternative block' => array(
+                '(hello)'
+            ),
+            'invalid end for alternative block' => array(
+                '(hello]'
+            ),
+            'missing end for alternative block' => array(
+                '(hello'
+            ),
         );
     }
 

@@ -110,6 +110,22 @@ class RouterTest extends PHPUnit_Framework_TestCase
                 array()
             ),
 
+            'alternative group with words' => array(
+                '(a | b | c)',
+                array('b'),
+                array()
+            ),
+            'alternative group with long and without short options' => array(
+                '(--help | -h)',
+                array('--help'),
+                array('help' => false)
+            ),
+            'alternative group without long and with short options' => array(
+                '(--help | -h)',
+                array('-h'),
+                array('h' => false)
+            ),
+
             'word with required long option with required value' => array(
                 'hello --name=<yes>',
                 array('hello', '--name=demo'),
@@ -232,6 +248,16 @@ class RouterTest extends PHPUnit_Framework_TestCase
                 'hello [user] user',
                 array('hello', 'user')
             ),
+
+            'alternative group with wrong word' => array(
+                '(a | b | c)',
+                array('d')
+            ),
+            'alternative group without any option' => array(
+                '(--help | -h)',
+                array()
+            ),
+
             'without long option' => array(
                 'hello [--test]',
                 array('hello', 'test')

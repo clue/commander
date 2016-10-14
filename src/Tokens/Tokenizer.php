@@ -47,8 +47,8 @@ class Tokenizer
             $previous = $i;
             $this->consumeOptionalWhitespace($input, $i);
 
-            // end of input reached
-            if (!isset($input[$i]) || $input[$i] === ']') {
+            // end of input reached or end token found
+            if (!isset($input[$i]) || strpos('])|', $input[$i]) !== false) {
                 break;
             }
 
@@ -81,6 +81,8 @@ class Tokenizer
             return $this->readArgument($input, $i);
         } elseif ($input[$i] === '[') {
             return $this->readOptionalBlock($input, $i);
+        } elseif ($input[$i] === '(') {
+            return $this->readAlternativeBlock($input, $i);
         } else {
             return $this->readWord($input, $i);
         }
@@ -119,7 +121,7 @@ class Tokenizer
         $token = $this->readSentenceOrSingle($input, $i);
 
         // above should stop at end token, otherwise syntax error
-        if (!isset($input[$i])) {
+        if (!isset($input[$i]) || $input[$i] !== ']') {
             throw new InvalidArgumentException('Missing end of optional block');
         }
 
@@ -129,10 +131,44 @@ class Tokenizer
         return new OptionalToken($token);
     }
 
+    private function readAlternativeBlock($input, &$i)
+    {
+        // advance to contents of optional block and read inner sentence
+        $i++;
+
+        $tokens = array();
+
+        while (true) {
+            $tokens []= $this->readSentenceOrSingle($input, $i);
+
+            // above should stop at end token, otherwise syntax error
+            if (!isset($input[$i])) {
+                throw new InvalidArgumentException('Missing end of alternative block');
+            }
+
+            // continue on alternative mark
+            if ($input[$i] === '|') {
+                $i++;
+                continue;
+            }
+
+            // skip end token
+            if ($input[$i] === ')') {
+                $i++;
+                break;
+            }
+
+            // otherwise, this is an invalid symbol
+            throw new InvalidArgumentException('Invalid symbol in alternative block');
+        }
+
+        return new AlternativeToken($tokens);
+    }
+
     private function readWord($input, &$i)
     {
         // static word token, buffer until next whitespace or closing square bracket
-        preg_match('/(?:[^\[\]\s]+|\[[^\]]+\])+/', $input, $matches, 0, $i);
+        preg_match('/(?:[^\[\]\(\)\|\s]+|\[[^\]]+\])+/', $input, $matches, 0, $i);
 
         $word = $matches[0];
         $i += strlen($word);
