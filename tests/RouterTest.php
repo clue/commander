@@ -204,6 +204,70 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $invoked);
     }
 
+    public function testHandleAddedRouteWithOptionalLongOption()
+    {
+        $router = new Router();
+
+        $invoked = null;
+        $router->add('hello [--test]', function ($args) use (&$invoked) {
+            $invoked = $args;
+        });
+
+        $this->assertNull($invoked);
+
+        $router->handleArgs(array('hello', '--test'));
+
+        $this->assertEquals(array('test' => false), $invoked);
+    }
+
+    public function testHandleAddedRouteWithoutOptionalLongOption()
+    {
+        $router = new Router();
+
+        $invoked = null;
+        $router->add('hello [--test]', function ($args) use (&$invoked) {
+            $invoked = $args;
+        });
+
+        $this->assertNull($invoked);
+
+        $router->handleArgs(array('hello'));
+
+        $this->assertEquals(array(), $invoked);
+    }
+
+    public function testHandleAddedRouteWithOptionalShortOption()
+    {
+        $router = new Router();
+
+        $invoked = null;
+        $router->add('hello [-i]', function ($args) use (&$invoked) {
+            $invoked = $args;
+        });
+
+        $this->assertNull($invoked);
+
+        $router->handleArgs(array('hello', '-i'));
+
+        $this->assertEquals(array('i' => false), $invoked);
+    }
+
+    public function testHandleAddedRouteWithoutOptionalShortOption()
+    {
+        $router = new Router();
+
+        $invoked = null;
+        $router->add('hello [-i]', function ($args) use (&$invoked) {
+            $invoked = $args;
+        });
+
+        $this->assertNull($invoked);
+
+        $router->handleArgs(array('hello'));
+
+        $this->assertEquals(array(), $invoked);
+    }
+
     /**
      * @expectedException Clue\Commander\NoRouteFoundException
      */
@@ -223,6 +287,17 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->add('hello', 'var_dump');
 
         $router->handleArgs(array('test'));
+    }
+
+    /**
+     * @expectedException Clue\Commander\NoRouteFoundException
+     */
+    public function testHandleRouteWithExcessiveArgumentsDoesNotMatch()
+    {
+        $router = new Router();
+        $router->add('hello', 'var_dump');
+
+        $router->handleArgs(array('hello', 'world'));
     }
 
     /**
@@ -256,5 +331,27 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->add('hello <names>...', 'var_dump');
 
         $router->handleArgs(array('hello'));
+    }
+
+    /**
+     * @expectedException Clue\Commander\NoRouteFoundException
+     */
+    public function testHandleRouteWithoutLongOptionDoesNotMatch()
+    {
+        $router = new Router();
+        $router->add('hello [--test]', 'var_dump');
+
+        $router->handleArgs(array('hello', 'test'));
+    }
+
+    /**
+     * @expectedException Clue\Commander\NoRouteFoundException
+     */
+    public function testHandleRouteWithoutShortOptionDoesNotMatch()
+    {
+        $router = new Router();
+        $router->add('hello [-i]', 'var_dump');
+
+        $router->handleArgs(array('hello', 'test'));
     }
 }

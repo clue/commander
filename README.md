@@ -163,6 +163,23 @@ $router->add('user dump [<names>...]', function (array $args) {
 // matches: user dump hello world
 ```
 
+You can add any number of optional short or long options like this:
+
+```php
+$router->add('user list [--json] [-f]', function (array $args) {
+    assert(!isset($args['json']) || $args['json'] === false);
+    assert(!isset($args['f']) || $args['f'] === false);
+});
+// matches: user list
+// matches: user list --json
+// matches: user list -f
+// matches: user list -f --json
+```
+
+As seen in the example, options in the `$args` array can either be unset when
+they have not been passed in the user input or set to `false` when they have
+been passed (which is in line with how other parsers such as `getopt()` work).
+
 #### remove()
 
 The `remove(Router $route)` method can be used to remove the given
