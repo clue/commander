@@ -268,6 +268,22 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $invoked);
     }
 
+    public function testHandleAddedRouteWithOptionalLongAndShortOptionBeforeWords()
+    {
+        $router = new Router();
+
+        $invoked = null;
+        $router->add('hello [--test] [-i]', function ($args) use (&$invoked) {
+            $invoked = $args;
+        });
+
+        $this->assertNull($invoked);
+
+        $router->handleArgs(array('-i', '--test', 'hello'));
+
+        $this->assertEquals(array('test' => false, 'i' => false), $invoked);
+    }
+
     /**
      * @expectedException Clue\Commander\NoRouteFoundException
      */
@@ -353,5 +369,27 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->add('hello [-i]', 'var_dump');
 
         $router->handleArgs(array('hello', 'test'));
+    }
+
+    /**
+     * @expectedException Clue\Commander\NoRouteFoundException
+     */
+    public function testHandleRouteWithOptionInsteadOfArgumentDoesNotMatch()
+    {
+        $router = new Router();
+        $router->add('hello <name>', 'var_dump');
+
+        $router->handleArgs(array('hello', '--test'));
+    }
+
+    /**
+     * @expectedException Clue\Commander\NoRouteFoundException
+     */
+    public function testHandleRouteWordDoesNotMatch()
+    {
+        $router = new Router();
+        $router->add('hello word [<any>]', 'var_dump');
+
+        $router->handleArgs(array('hello', 'not', 'word'));
     }
 }

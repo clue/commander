@@ -13,10 +13,12 @@ class ArgumentToken implements TokenInterface
 
     public function matches(array &$input, array &$output)
     {
-        if ($input) {
-            $value = array_shift($input);
-            $output[$this->name] = $value;
-            return true;
+        foreach ($input as $key => $value) {
+            if ($value === '' || $value[0] !== '-') {
+                unset($input[$key]);
+                $output[$this->name] = $value;
+                return true;
+            }
         }
 
         return false;

@@ -174,11 +174,15 @@ $router->add('user list [--json] [-f]', function (array $args) {
 // matches: user list --json
 // matches: user list -f
 // matches: user list -f --json
+// matches: user -f list
+// matches: --json user list
 ```
 
 As seen in the example, options in the `$args` array can either be unset when
 they have not been passed in the user input or set to `false` when they have
 been passed (which is in line with how other parsers such as `getopt()` work).
+Note that options are accepted anywhere in the user input argument, regardless
+of where they have been defined.
 
 #### remove()
 
