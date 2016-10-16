@@ -19,7 +19,8 @@ class LongOptionToken implements TokenInterface
     public function matches(array &$input, array &$output)
     {
         $pos = array_search('--' . $this->name, $input);
-        if ($pos !== false) {
+        $dd = array_search('--', $input);
+        if ($pos !== false && ($dd === false || $dd > $pos)) {
             unset($input[$pos]);
             $output[$this->name] = false;
             return true;

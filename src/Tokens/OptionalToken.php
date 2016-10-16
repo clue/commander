@@ -13,7 +13,8 @@ class OptionalToken implements TokenInterface
 
     public function matches(array &$input, array &$output)
     {
-        if (!$input) {
+        // input is empty or has only single double dash remaining
+        if (!$input || (count($input) === 1 && reset($input) === '--')) {
             return true;
         }
 

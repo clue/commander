@@ -119,7 +119,20 @@ $router->add('user add <name>', function (array $args) {
 // matches: user add clue
 // does not match: user add (missing required argument)
 // does not match: user add hello world (too many arguments)
+// does not match: user add --test (argument looks like an option)
+
+// matches: user add -- clue     (value: clue)
+// matches: user add -- --test   (value: --test)
+// matches: user add -- -nobody- (value: -nobody-)
+// matches: user add -- --       (value: --)
 ```
+
+Note that arguments that start with a dash (`-`) are not simply accepted in the
+user input, because they may be confused with (optional) options (see below).
+If users wish to process arguments that start with a dash (`-`), they may use
+a double dash separator (`--`), as everything after this separator will be
+processed as-is.
+See also the last examples above that demonstrate this behavior.
 
 You can mark arguments as optional by enclosing them in square brackets like this:
 

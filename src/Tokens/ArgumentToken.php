@@ -13,11 +13,15 @@ class ArgumentToken implements TokenInterface
 
     public function matches(array &$input, array &$output)
     {
+        $dd = false;
         foreach ($input as $key => $value) {
-            if ($value === '' || $value[0] !== '-') {
+            if ($value === '' || $value[0] !== '-' || $dd) {
                 unset($input[$key]);
                 $output[$this->name] = $value;
                 return true;
+            } elseif ($value === '--') {
+                // found a double dash => following must be an argument
+                $dd = true;
             }
         }
 

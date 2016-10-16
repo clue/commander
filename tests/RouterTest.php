@@ -284,6 +284,54 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array('test' => false, 'i' => false), $invoked);
     }
 
+    public function testHandleAddedRouteWithArgumentIgnoresDoubleDash()
+    {
+        $router = new Router();
+
+        $invoked = null;
+        $router->add('hello <name>', function ($args) use (&$invoked) {
+            $invoked = $args;
+        });
+
+        $this->assertNull($invoked);
+
+        $router->handleArgs(array('hello', '--', 'clue'));
+
+        $this->assertEquals(array('name' => 'clue'), $invoked);
+    }
+
+    public function testHandleAddedRouteWithArgumentStartingWithDash()
+    {
+        $router = new Router();
+
+        $invoked = null;
+        $router->add('hello <name>', function ($args) use (&$invoked) {
+            $invoked = $args;
+        });
+
+        $this->assertNull($invoked);
+
+        $router->handleArgs(array('hello', '--', '-nobody-'));
+
+        $this->assertEquals(array('name' => '-nobody-'), $invoked);
+    }
+
+    public function testHandleAddedRouteWithoutOptionalArgumentIgnoresDoubleDash()
+    {
+        $router = new Router();
+
+        $invoked = null;
+        $router->add('hello [<name>]', function ($args) use (&$invoked) {
+            $invoked = $args;
+        });
+
+        $this->assertNull($invoked);
+
+        $router->handleArgs(array('hello', '--'));
+
+        $this->assertEquals(array(), $invoked);
+    }
+
     /**
      * @expectedException Clue\Commander\NoRouteFoundException
      */
@@ -380,6 +428,17 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->add('hello <name>', 'var_dump');
 
         $router->handleArgs(array('hello', '--test'));
+    }
+
+    /**
+     * @expectedException Clue\Commander\NoRouteFoundException
+     */
+    public function testHandleRouteWithExplicitDashArgumentInsteadOfOptionDoesNotMatch()
+    {
+        $router = new Router();
+        $router->add('hello [--test]', 'var_dump');
+
+        $router->handleArgs(array('hello', '--', '--test'));
     }
 
     /**
