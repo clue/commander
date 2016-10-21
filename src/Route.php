@@ -46,7 +46,8 @@ class Route implements TokenInterface
     {
         if ($this->token->matches($input, $output)) {
             // excessive arguments should fail, make sure input is now empty
-            if (!$input) {
+            // single remaining `--` to separate options from arguments is also accepted
+            if (!$input || (count($input) === 1 && reset($input) === '--')) {
                 return true;
             }
         }

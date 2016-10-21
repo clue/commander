@@ -79,12 +79,15 @@ class Tokenizer
                     $ellipse = true;
                 }
 
-                // for now, the optional block may only contain arguments
-                if (substr($word, 0, 1) !== '<' || substr($word, -1) !== '>') {
-                    throw new InvalidArgumentException('Optional block must contain argument block');
+                if (substr($word, 0, 2) === '--') {
+                    $token = new LongOptionToken(substr($word, 2));
+                } elseif (substr($word, 0, 1) === '-') {
+                    $token = new ShortOptionToken(substr($word, 1));
+                } elseif (substr($word, 0, 1) === '<' && substr($word, -1) === '>') {
+                    $token = new ArgumentToken(substr($word, 1, -1));
+                } else{
+                    throw new InvalidArgumentException('Optional block must contain option or argument block');
                 }
-
-                $token = new ArgumentToken(substr($word, 1, -1));
 
                 if ($ellipse) {
                     $token = new EllipseToken($token);

@@ -119,7 +119,20 @@ $router->add('user add <name>', function (array $args) {
 // matches: user add clue
 // does not match: user add (missing required argument)
 // does not match: user add hello world (too many arguments)
+// does not match: user add --test (argument looks like an option)
+
+// matches: user add -- clue     (value: clue)
+// matches: user add -- --test   (value: --test)
+// matches: user add -- -nobody- (value: -nobody-)
+// matches: user add -- --       (value: --)
 ```
+
+Note that arguments that start with a dash (`-`) are not simply accepted in the
+user input, because they may be confused with (optional) options (see below).
+If users wish to process arguments that start with a dash (`-`), they may use
+a double dash separator (`--`), as everything after this separator will be
+processed as-is.
+See also the last examples above that demonstrate this behavior.
 
 You can mark arguments as optional by enclosing them in square brackets like this:
 
@@ -162,6 +175,27 @@ $router->add('user dump [<names>...]', function (array $args) {
 // matches: user dump clue
 // matches: user dump hello world
 ```
+
+You can add any number of optional short or long options like this:
+
+```php
+$router->add('user list [--json] [-f]', function (array $args) {
+    assert(!isset($args['json']) || $args['json'] === false);
+    assert(!isset($args['f']) || $args['f'] === false);
+});
+// matches: user list
+// matches: user list --json
+// matches: user list -f
+// matches: user list -f --json
+// matches: user -f list
+// matches: --json user list
+```
+
+As seen in the example, options in the `$args` array can either be unset when
+they have not been passed in the user input or set to `false` when they have
+been passed (which is in line with how other parsers such as `getopt()` work).
+Note that options are accepted anywhere in the user input argument, regardless
+of where they have been defined.
 
 #### remove()
 

@@ -13,9 +13,14 @@ class WordToken implements TokenInterface
 
     public function matches(array &$input, array &$output)
     {
-        if (isset($input[0]) && $input[0] === $this->word) {
-            array_shift($input);
-            return true;
+        foreach ($input as $key => $value) {
+            if ($value === $this->word) {
+                unset($input[$key]);
+                return true;
+            } elseif ($value === '' || $value[0] !== '-') {
+                // any other word/argument (non-option) found => fail
+                break;
+            }
         }
         return false;
     }
