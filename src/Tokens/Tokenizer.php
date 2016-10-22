@@ -71,27 +71,7 @@ class Tokenizer
                 }
 
                 $word = substr($input, $start + 1, $i++ - $start - 1);
-
-                $ellipse = false;
-                // ends with `...` means that any number of arguments are accepted
-                if (substr($word, -3) === '...') {
-                    $word = substr($word, 0, -3);
-                    $ellipse = true;
-                }
-
-                if (substr($word, 0, 2) === '--') {
-                    $token = new LongOptionToken(substr($word, 2));
-                } elseif (substr($word, 0, 1) === '-') {
-                    $token = new ShortOptionToken(substr($word, 1));
-                } elseif (substr($word, 0, 1) === '<' && substr($word, -1) === '>') {
-                    $token = new ArgumentToken(substr($word, 1, -1));
-                } else{
-                    throw new InvalidArgumentException('Optional block must contain option or argument block');
-                }
-
-                if ($ellipse) {
-                    $token = new EllipseToken($token);
-                }
+                $token = $this->tokenFromWord($word);
 
                 $tokens []= new OptionalToken($token);
             } else {
@@ -99,8 +79,9 @@ class Tokenizer
                 for($start = $i++; isset($input[$i]) && !in_array($input[$i], $ws); ++$i);
 
                 $word = substr($input, $start, $i - $start);
+                $token = $this->tokenFromWord($word);
 
-                $tokens []= new WordToken($word);
+                $tokens []= $token;
             }
         }
 
@@ -111,5 +92,31 @@ class Tokenizer
 
         // otherwise wrap in a sentence-token
         return new SentenceToken($tokens);
+    }
+
+    private function tokenFromWord($word)
+    {
+        $ellipse = false;
+        // ends with `...` means that any number of arguments are accepted
+        if (substr($word, -3) === '...') {
+            $word = substr($word, 0, -3);
+            $ellipse = true;
+        }
+
+        if (substr($word, 0, 2) === '--') {
+            $token = new LongOptionToken(substr($word, 2));
+        } elseif (substr($word, 0, 1) === '-') {
+            $token = new ShortOptionToken(substr($word, 1));
+        } elseif (substr($word, 0, 1) === '<' && substr($word, -1) === '>') {
+            $token = new ArgumentToken(substr($word, 1, -1));
+        } else{
+            $token = new WordToken($word);
+        }
+
+        if ($ellipse) {
+            $token = new EllipseToken($token);
+        }
+
+        return $token;
     }
 }

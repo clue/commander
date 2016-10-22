@@ -71,6 +71,20 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('hello [-f]', $tokens);
     }
 
+    public function testWordWithRequiredLongOption()
+    {
+        $tokens = $this->tokenizer->createToken("hello --upper");
+
+        $this->assertEquals('hello --upper', $tokens);
+    }
+
+    public function testWordWithRequiredShortOption()
+    {
+        $tokens = $this->tokenizer->createToken("hello -f");
+
+        $this->assertEquals('hello -f', $tokens);
+    }
+
     public function testWordWithArgumentEllipses()
     {
         $tokens = $this->tokenizer->createToken("hello <name>...");
@@ -85,20 +99,19 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('hello [<name>...]', $tokens);
     }
 
+    public function testOptionalKeyword()
+    {
+        $tokens = $this->tokenizer->createToken("hello [world]");
+
+        $this->assertEquals('hello [world]', $tokens);
+    }
+
     /**
      * @expectedException InvalidArgumentException
      */
     public function testIncompleteOptionalArgument()
     {
         $this->tokenizer->createToken("[<word>");
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testOptionalBlockMustContainArgument()
-    {
-        $this->tokenizer->createToken("hello [world]");
     }
 
     /**
