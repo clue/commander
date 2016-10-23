@@ -2,12 +2,17 @@
 
 namespace Clue\Commander\Tokens;
 
+use InvalidArgumentException;
+
 class WordToken implements TokenInterface
 {
     private $word;
 
     public function __construct($word)
     {
+        if (!isset($word[0])) {
+            throw new InvalidArgumentException('Word must not be empty');
+        }
         $this->word = $word;
     }
 

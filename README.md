@@ -146,6 +146,10 @@ $router->add('user search [<query>]', function (array $args) {
 // does not match: user search hello world (too many arguments)
 ```
 
+Note that square brackets can be added to pretty much any token in your route
+expression, however they are most commonly used for arguments as above or for
+optional options as below.
+
 You can accept any number of arguments by appending ellipses like this:
 
 ```php
@@ -158,6 +162,11 @@ $router->add('user delete <names>...', function (array $args) {
 // matches: user delete hello world
 // does not match: user delete (missing required argument)
 ```
+
+Note that trailing ellipses can be added to pretty much any token in your route
+expression, however they are most commonly used for arguments as above.
+The above requires at least one argument, see the following if you want this
+to be completely optional.
 
 You can accept any number of optional arguments by appending ellipses within square brackets like this:
 
@@ -175,6 +184,8 @@ $router->add('user dump [<names>...]', function (array $args) {
 // matches: user dump clue
 // matches: user dump hello world
 ```
+
+The above does not require any arguments, it works with zero or more arguments.
 
 You can add any number of optional short or long options like this:
 
@@ -196,6 +207,9 @@ they have not been passed in the user input or set to `false` when they have
 been passed (which is in line with how other parsers such as `getopt()` work).
 Note that options are accepted anywhere in the user input argument, regardless
 of where they have been defined.
+Note that the square brackets are in the route expression are required to mark
+this optional as optional, you you also omit these square brackets if you really
+want a required option.
 
 #### remove()
 

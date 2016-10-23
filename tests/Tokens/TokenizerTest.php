@@ -99,11 +99,32 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('hello [<name>...]', $tokens);
     }
 
+    public function testWordWithOptionalEllipseShortOption()
+    {
+        $tokens = $this->tokenizer->createToken("hello [-v...]");
+
+        $this->assertEquals('hello [-v...]', $tokens);
+    }
+
+    public function testWordWithOptionalEllipseArgumentsWithWhitespace()
+    {
+        $tokens = $this->tokenizer->createToken("  hello  [  <  name  >  ...  ]  ");
+
+        $this->assertEquals('hello [<name>...]', $tokens);
+    }
+
     public function testOptionalKeyword()
     {
         $tokens = $this->tokenizer->createToken("hello [world]");
 
         $this->assertEquals('hello [world]', $tokens);
+    }
+
+    public function testOptionalKeywordWithNestedOptionalSentence()
+    {
+        $tokens = $this->tokenizer->createToken("hello [world [now]]");
+
+        $this->assertEquals('hello [world [now]]', $tokens);
     }
 
     /**
@@ -112,6 +133,46 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
     public function testIncompleteOptionalArgument()
     {
         $this->tokenizer->createToken("[<word>");
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testClosingOptionalBlockWithoutOpening()
+    {
+        $this->tokenizer->createToken("test]");
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testEmptySentenceInOptionalBlock()
+    {
+        $this->tokenizer->createToken("[]");
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testOptionalBlockInOptionalBlock()
+    {
+        $this->tokenizer->createToken("[[test]]");
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testEmptyWordWithEllipseInOptionalBlock()
+    {
+        $this->tokenizer->createToken("[...]");
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testIncompleteOptionalBlockInOptionalBlock()
+    {
+        $this->tokenizer->createToken("[[test]");
     }
 
     /**
