@@ -20,11 +20,11 @@ class Route implements TokenInterface
     /**
      * Instantiate new Router object
      *
-     * @param TokenInterface $token   the route token to match
-     * @param callable       $handler the route callback to execute if this route matches
+     * @param TokenInterface|null $token   the optional route token to match. If no token is given, this matches only the empty input.
+     * @param callable            $handler the route callback to execute if this route matches
      * @throws InvalidArgumentException if the given $handler is not a valid callable
      */
-    public function __construct(TokenInterface $token, $handler)
+    public function __construct(TokenInterface $token = null, $handler)
     {
         if (!is_callable($handler)) {
             throw new InvalidArgumentException('Route handler is not a valid callable');
@@ -44,7 +44,7 @@ class Route implements TokenInterface
      */
     public function matches(array &$input, array &$output)
     {
-        if ($this->token->matches($input, $output)) {
+        if ($this->token === null || $this->token->matches($input, $output)) {
             // excessive arguments should fail, make sure input is now empty
             // single remaining `--` to separate options from arguments is also accepted
             if (!$input || (count($input) === 1 && reset($input) === '--')) {

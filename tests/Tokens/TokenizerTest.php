@@ -11,16 +11,6 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $this->tokenizer = new Tokenizer();
     }
 
-    public function testEmpty()
-    {
-        $this->assertEquals('', $this->tokenizer->createToken(''));
-    }
-
-    public function testWhitespaceOnly()
-    {
-        $this->assertEquals('', $this->tokenizer->createToken("\t\r\n"));
-    }
-
     public function testSingleWord()
     {
         $tokens = $this->tokenizer->createToken("hello");
@@ -125,6 +115,22 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $tokens = $this->tokenizer->createToken("hello [world [now]]");
 
         $this->assertEquals('hello [world [now]]', $tokens);
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testEmptyIsNotAToken()
+    {
+        $this->tokenizer->createToken('');
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testWhitespaceOnlyIsNotAToken()
+    {
+        $this->tokenizer->createToken("\t\r\n");
     }
 
     /**

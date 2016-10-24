@@ -88,6 +88,16 @@ The route expression aims to be so simple that both consumers of this library
 (i.e. developers) and users of your resulting tools should be able to understand
 them.
 
+You can use an empty string like this to match when no arguments have been given:
+
+```php
+$router->add('', function() {
+    echo 'No arguments given. Need help?' . PHP_EOL;
+});
+// matches: (empty string)
+// does not match: hello (too many arguments)
+```
+
 You can use any number of static keywords like this:
 
 ```php
@@ -97,16 +107,6 @@ $router->add('user list', function () {
 // matches: user list
 // does not match: user (missing required keyword)
 // does not match: user list hello (too many arguments)
-```
-
-Similarly, you can use an empty string like this to match when no arguments have been given:
-
-```php
-$router->add('', function() {
-    echo 'No arguments given. Need help?' . PHP_EOL;
-});
-// matches: (empty string)
-// does not match: hello (too many arguments)
 ```
 
 You can use any number of placeholders to mark required arguments like this:

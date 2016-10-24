@@ -15,10 +15,6 @@ class OptionalToken implements TokenInterface
         }
 
         $this->token = $token;
-
-        if ((string)$this === '[]') {
-            throw new InvalidArgumentException('Optional block must not be empty');
-        }
     }
 
     public function matches(array &$input, array &$output)

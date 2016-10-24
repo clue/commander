@@ -40,7 +40,12 @@ class Router
      */
     public function add($route, $handler)
     {
-        $route = new Route($this->tokenizer->createToken($route), $handler);
+        if (trim($route) === '') {
+            $token = null;
+        } else {
+            $token = $this->tokenizer->createToken($route);
+        }
+        $route = new Route($token, $handler);
 
         $this->routes[] = $route;
 
