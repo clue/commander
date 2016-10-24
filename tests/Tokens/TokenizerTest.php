@@ -136,6 +136,22 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException InvalidArgumentException
      */
+    public function testMissingWhitespaceBetweenArguments()
+    {
+        $this->tokenizer->createToken("<first><second>");
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testMissingWhitespaceBetweenArgumentAndOptionalWord()
+    {
+        $this->tokenizer->createToken("<first>[word]");
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testIncompleteOptionalArgument()
     {
         $this->tokenizer->createToken("[<word>");

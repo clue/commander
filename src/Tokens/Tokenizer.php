@@ -54,11 +54,17 @@ class Tokenizer
         $tokens = array();
 
         while (true) {
+            $previous = $i;
             $this->consumeOptionalWhitespace($input, $i);
 
             // end of input reached
             if (!isset($input[$i]) || $input[$i] === ']') {
                 break;
+            }
+
+            // cursor must be moved due to whitespace if there's another token
+            if ($previous === $i && $tokens) {
+                throw new InvalidArgumentException('Missing whitespace between tokens');
             }
 
             $tokens []= $this->readToken($input, $i);
