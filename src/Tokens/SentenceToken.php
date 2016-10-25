@@ -2,12 +2,26 @@
 
 namespace Clue\Commander\Tokens;
 
+use InvalidArgumentException;
+
 class SentenceToken implements TokenInterface
 {
     private $tokens;
 
     public function __construct(array $tokens)
     {
+        if (count($tokens) < 2) {
+            throw new InvalidArgumentException('Sentence must contain at least 2 tokens');
+        }
+
+        foreach ($tokens as $token) {
+            if (!$token instanceof TokenInterface) {
+                throw new InvalidArgumentException('Sentence must only contain valid tokens');
+            } elseif ($token instanceof self) {
+                throw new InvalidArgumentException('Sentence must not contain sub-sentence token');
+            }
+        }
+
         $this->tokens = $tokens;
     }
 
@@ -29,16 +43,6 @@ class SentenceToken implements TokenInterface
 
     public function __toString()
     {
-        $ret = '';
-
-        foreach ($this->tokens as $token) {
-            if ($ret !== '') {
-                $ret .= ' ';
-            }
-
-            $ret .= $token;
-        }
-
-        return $ret;
+        return implode(' ', $this->tokens);
     }
 }

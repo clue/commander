@@ -124,6 +124,22 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertNull($ret);
     }
 
+    public function testHandleAddedEmptyRouteEmpty()
+    {
+        $router = new Router();
+
+        $invoked = null;
+        $router->add('', function ($args) use (&$invoked) {
+            $invoked = $args;
+        });
+
+        $this->assertNull($invoked);
+
+        $router->handleArgs(array());
+
+        $this->assertEquals(array(), $invoked);
+    }
+
     public function testHandleAddedRouteWithArgument()
     {
         $router = new Router();

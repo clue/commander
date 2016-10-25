@@ -2,10 +2,16 @@
 
 namespace Clue\Commander\Tokens;
 
+use InvalidArgumentException;
+
 class EllipseToken implements TokenInterface
 {
     public function __construct(TokenInterface $token)
     {
+        if ($token instanceof self) {
+            throw new InvalidArgumentException('Nested ellipse block is superfluous');
+        }
+
         $this->token = $token;
     }
 
