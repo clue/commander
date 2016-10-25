@@ -84,9 +84,17 @@ to route incoming HTTP requests to the corresponding "controller functions":
 $route = $router->add($path, $fn);
 ```
 
-The route expression aims to be so simple that both consumers of this library
+The route expression uses a custom domain-specific language (DSL) which aims to
+be so simple that both consumers of this library
 (i.e. developers) and users of your resulting tools should be able to understand
 them.
+
+Note that this is a left-associative grammar (LAG) and all tokens are greedy.
+This means that the tokens will be processed from left to right and each token
+will try to match as many of the input arguments as possible.
+This implies that certain route expressions make little sense, such as having
+an optional argument after an argument with ellipses.
+For more details, see below.
 
 You can use an empty string like this to match when no arguments have been given:
 
@@ -149,6 +157,11 @@ $router->add('user search [<query>]', function (array $args) {
 Note that square brackets can be added to pretty much any token in your route
 expression, however they are most commonly used for arguments as above or for
 optional options as below.
+Optional tokens can appear anywhere in the route expression, but keep in mind
+that the tokens will be matched from left to right, so if the optional token
+matches, then the remainder will be processed by the following tokens.
+As a rule of thumb, make sure optional tokens are near the end of your route
+expressions and you won't notice this subtle effect.
 
 You can accept any number of arguments by appending ellipses like this:
 
@@ -167,6 +180,12 @@ Note that trailing ellipses can be added to pretty much any token in your route
 expression, however they are most commonly used for arguments as above.
 The above requires at least one argument, see the following if you want this
 to be completely optional.
+Technically, the ellipse tokens can appear anywhere in the route expression, but
+keep in mind that the tokens will be matched from the left to the right, so if
+the ellipse matches, it will consume all input arguments and not leave anything
+for following tokens.
+As a rule of thumb, make sure ellipse tokens are near the end of your route
+expression and you won't notice this subtle effect.
 
 You can accept any number of optional arguments by appending ellipses within square brackets like this:
 
