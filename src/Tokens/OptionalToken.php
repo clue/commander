@@ -19,12 +19,8 @@ class OptionalToken implements TokenInterface
 
     public function matches(array &$input, array &$output)
     {
-        // input is empty or has only single double dash remaining
-        if (!$input || (count($input) === 1 && reset($input) === '--')) {
-            return true;
-        }
-
-        return $this->token->matches($input, $output);
+        // try greedy match for sub-token or succeed anyway
+        return $this->token->matches($input, $output) || true;
     }
 
     public function __toString()
