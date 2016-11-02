@@ -14,7 +14,7 @@ to execute individual functions depending on the arguments given.
 
 * [Quickstart example](#quickstart-example)
 * [Usage](#usage)
-  * [Router()](#router)
+  * [Router](#router)
     * [add()](#add)
     * [remove()](#remove)
     * [getRoutes()](#getroutes)
@@ -71,7 +71,7 @@ $router = new Router();
 
 #### add()
 
-The `add(string $route, callable $handler) : Router` method can be used to
+The `add(string $route, callable $handler): Route` method can be used to
 register a new [`Route`](#route) with this Router.
 
 It accepts a route expression to match and a route callback that will be
@@ -232,7 +232,7 @@ want a required option.
 
 #### remove()
 
-The `remove(Router $route)` method can be used to remove the given
+The `remove(Route $route): void` method can be used to remove the given
 [`Route`](#route) object from the registered routes.
 
 ```php
@@ -258,7 +258,7 @@ This array will be empty if you have not added any routes yet.
 
 #### execArgv()
 
-The `execArgv(array $argv = null) : void` method can be used to
+The `execArgv(array $argv = null): void` method can be used to
 execute by matching the `argv` against all registered routes and then exit.
 
 You can explicitly pass in your `$argv` or it will automatically use the
@@ -281,7 +281,7 @@ yourself.
 
 #### handleArgv()
 
-The `handleArgv(array $argv = null) : mixed` method can be used to
+The `handleArgv(array $argv = null): mixed` method can be used to
 execute by matching the `argv` against all registered routes and then return.
 
 You can explicitly pass in your `$argv` or it will automatically use the
@@ -327,7 +327,7 @@ $router->handleArgv(array('program', 'hello', 'admin'));
 
 #### handleArgs()
 
-The `handleArgs(array $args) : mixed` method can be used to
+The `handleArgs(array $args): mixed` method can be used to
 execute by matching the given args against all registered routes and then return.
 
 Unlike [`handleArgv()`](#handleargv) this method will use the complete `$args` array
