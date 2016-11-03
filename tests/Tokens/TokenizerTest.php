@@ -212,4 +212,12 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
     {
         $this->tokenizer->createToken("hello [-nope]");
     }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
+    public function testOptionalOptionNameIsMissing()
+    {
+        $this->tokenizer->createToken("hello [-]");
+    }
 }

@@ -153,10 +153,8 @@ class Tokenizer
             $ellipse = true;
         }
 
-        if (substr($word, 0, 2) === '--') {
-            $token = new LongOptionToken(substr($word, 2));
-        } elseif (substr($word, 0, 1) === '-') {
-            $token = new ShortOptionToken(substr($word, 1));
+        if (substr($word, 0, 1) === '-') {
+            $token = new OptionToken($word);
         } else{
             $token = new WordToken($word);
         }
