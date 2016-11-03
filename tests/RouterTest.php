@@ -21,6 +21,187 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array($route), $router->getRoutes());
     }
 
+    public static function provideMatchingRoutes()
+    {
+        return array(
+            'single word' => array(
+                'hello',
+                array('hello'),
+                array()
+            ),
+            'empty route' => array(
+                '',
+                array(),
+                array()
+            ),
+            'word with argument' => array(
+                'hello <name>',
+                array('hello', 'clue'),
+                array('name' => 'clue')
+            ),
+            'word with optional argument' => array(
+                'hello [<name>]',
+                array('hello', 'clue'),
+                array('name' => 'clue')
+            ),
+            'word without optional argument' => array(
+                'hello [<name>]',
+                array('hello'),
+                array()
+            ),
+            'word with ellipse arguments' => array(
+                'hello <names>...',
+                array('hello', 'first', 'second'),
+                array('names' => array('first', 'second'))
+            ),
+            'word without optional ellipse arguments' => array(
+                'hello [<names>...]',
+                array('hello'),
+                array()
+            ),
+            'word with optional long option' => array(
+                'hello [--test]',
+                array('hello', '--test'),
+                array('test' => false)
+            ),
+            'word without optional long option' => array(
+                'hello [--test]',
+                array('hello'),
+                array()
+            ),
+            'word without optional long option first' => array(
+                '[--test] hello',
+                array('hello'),
+                array()
+            ),
+            'word with optional long option first' => array(
+                '[--test] hello',
+                array('hello', '--test'),
+                array('test' => false)
+            ),
+            'word with optional short option' => array(
+                'hello [-i]',
+                array('hello', '-i'),
+                array('i' => false)
+            ),
+            'word without optional short option' => array(
+                'hello [-i]',
+                array('hello'),
+                array()
+            ),
+            'word with optional long and short option before words' => array(
+                'hello [--test] [-i]',
+                array('-i', '--test', 'hello'),
+                array('test' => false, 'i' => false)
+            ),
+            'word with argument ignores double dash' => array(
+                'hello <name>',
+                array('hello', '--', 'clue'),
+                array('name' => 'clue')
+            ),
+            'word with argument starting with dash' => array(
+                'hello <name>',
+                array('hello', '--', '-nobody-'),
+                array('name' => '-nobody-')
+            ),
+            'word without optional argument ignores double dash' => array(
+                'hello [<name>]',
+                array('hello', '--'),
+                array()
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider provideMatchingRoutes
+     * @param string $route
+     * @param array $args
+     * @param array $expected
+     */
+    public function testHandleRouteMatches($route, $args, $expected)
+    {
+        $router = new Router();
+
+        $invoked = null;
+        $router->add($route, function ($args) use (&$invoked) {
+            $invoked = $args;
+        });
+
+        $this->assertNull($invoked);
+
+        $router->handleArgs($args);
+
+        $this->assertEquals($expected, $invoked);
+    }
+
+    public function provideNonMatchingRoutes()
+    {
+        return array(
+            'other word' => array(
+                'hello',
+                array('test')
+            ),
+            'excesive arguments' => array(
+                'hello',
+                array('hello', 'world')
+            ),
+            'word in sentence missing' => array(
+                'hello world',
+                array('hello')
+            ),
+            'argument missing' => array(
+                'hello <name>',
+                array('hello')
+            ),
+            'without ellipse arguments' => array(
+                'hello <names>...',
+                array('hello')
+            ),
+            'with keyword after ellipses never matches' => array(
+                'hello <names>... test',
+                array('hello', 'a', 'b', 'test')
+            ),
+            'without keyword after optional keyword' => array(
+                'hello [user] user',
+                array('hello', 'user')
+            ),
+            'without long option' => array(
+                'hello [--test]',
+                array('hello', 'test')
+            ),
+            'without short option' => array(
+                'hello [-i]',
+                array('hello', 'test')
+            ),
+            'with option instead of argument' => array(
+                'hello <name>',
+                array('hello', '--test')
+            ),
+            'with explicit dash argument instead of option' => array(
+                'hello [--test]',
+                array('hello', '--', '--test')
+            ),
+            'invalid word in sentence' => array(
+                'hello word [<any>]',
+                array('hello', 'not', 'word')
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider provideNonMatchingRoutes
+     * @expectedException Clue\Commander\NoRouteFoundException
+     * @param string $route
+     * @param array  $args
+     */
+    public function testHandleRouteDoesNotMatch($route, $args)
+    {
+        $router = new Router();
+        $router->add($route, 'var_dump');
+
+        $router->handleArgs($args);
+    }
+
     public function testAddRouteCanBeRemoved()
     {
         $router = new Router();
@@ -52,22 +233,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router = new Router();
 
         $router->add('hello', 'invalid');
-    }
-
-    public function testHandleAddedRouteEmpty()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello'));
-
-        $this->assertEquals(array(), $invoked);
     }
 
     public function testHandleArgvAddedRouteEmpty()
@@ -124,262 +289,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertNull($ret);
     }
 
-    public function testHandleAddedEmptyRouteEmpty()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array());
-
-        $this->assertEquals(array(), $invoked);
-    }
-
-    public function testHandleAddedRouteWithArgument()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello <name>', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello', 'clue'));
-
-        $this->assertEquals(array('name' => 'clue'), $invoked);
-    }
-
-    public function testHandleAddedRouteWithOptionalArgument()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello [<name>]', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello', 'clue'));
-
-        $this->assertEquals(array('name' => 'clue'), $invoked);
-    }
-
-    public function testHandleAddedRouteWithoutOptionalArgument()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello [<name>]', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello'));
-
-        $this->assertEquals(array(), $invoked);
-    }
-
-    public function testHandleAddedRouteWitEllipseArguments()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello <names>...', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello', 'first', 'second'));
-
-        $this->assertEquals(array('names' => array('first', 'second')), $invoked);
-    }
-
-    public function testHandleAddedRouteWithoutOptionalEllipseArguments()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello [<names>...]', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello'));
-
-        $this->assertEquals(array(), $invoked);
-    }
-
-    public function testHandleAddedRouteWithOptionalLongOption()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello [--test]', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello', '--test'));
-
-        $this->assertEquals(array('test' => false), $invoked);
-    }
-
-    public function testHandleAddedRouteWithoutOptionalLongOption()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello [--test]', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello'));
-
-        $this->assertEquals(array(), $invoked);
-    }
-
-    public function testHandleAddedRouteWithoutOptionalLongOptionFirst()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('[--test] hello', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello'));
-
-        $this->assertEquals(array(), $invoked);
-    }
-
-    public function testHandleAddedRouteWithOptionalLongOptionFirst()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('[--test] hello', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello', '--test'));
-
-        $this->assertEquals(array('test' => false), $invoked);
-    }
-
-    public function testHandleAddedRouteWithOptionalShortOption()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello [-i]', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello', '-i'));
-
-        $this->assertEquals(array('i' => false), $invoked);
-    }
-
-    public function testHandleAddedRouteWithoutOptionalShortOption()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello [-i]', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello'));
-
-        $this->assertEquals(array(), $invoked);
-    }
-
-    public function testHandleAddedRouteWithOptionalLongAndShortOptionBeforeWords()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello [--test] [-i]', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('-i', '--test', 'hello'));
-
-        $this->assertEquals(array('test' => false, 'i' => false), $invoked);
-    }
-
-    public function testHandleAddedRouteWithArgumentIgnoresDoubleDash()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello <name>', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello', '--', 'clue'));
-
-        $this->assertEquals(array('name' => 'clue'), $invoked);
-    }
-
-    public function testHandleAddedRouteWithArgumentStartingWithDash()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello <name>', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello', '--', '-nobody-'));
-
-        $this->assertEquals(array('name' => '-nobody-'), $invoked);
-    }
-
-    public function testHandleAddedRouteWithoutOptionalArgumentIgnoresDoubleDash()
-    {
-        $router = new Router();
-
-        $invoked = null;
-        $router->add('hello [<name>]', function ($args) use (&$invoked) {
-            $invoked = $args;
-        });
-
-        $this->assertNull($invoked);
-
-        $router->handleArgs(array('hello', '--'));
-
-        $this->assertEquals(array(), $invoked);
-    }
-
     /**
      * @expectedException Clue\Commander\NoRouteFoundException
      */
@@ -388,137 +297,5 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router = new Router();
 
         $router->handleArgs(array());
-    }
-
-    /**
-     * @expectedException Clue\Commander\NoRouteFoundException
-     */
-    public function testHandleRouteDoesNotMatch()
-    {
-        $router = new Router();
-        $router->add('hello', 'var_dump');
-
-        $router->handleArgs(array('test'));
-    }
-
-    /**
-     * @expectedException Clue\Commander\NoRouteFoundException
-     */
-    public function testHandleRouteWithExcessiveArgumentsDoesNotMatch()
-    {
-        $router = new Router();
-        $router->add('hello', 'var_dump');
-
-        $router->handleArgs(array('hello', 'world'));
-    }
-
-    /**
-     * @expectedException Clue\Commander\NoRouteFoundException
-     */
-    public function testHandleRouteSentenceDoesNotMatch()
-    {
-        $router = new Router();
-        $router->add('hello world', 'var_dump');
-
-        $router->handleArgs(array('hello'));
-    }
-
-    /**
-     * @expectedException Clue\Commander\NoRouteFoundException
-     */
-    public function testHandleRouteArgumentDoesNotMatch()
-    {
-        $router = new Router();
-        $router->add('hello <name>', 'var_dump');
-
-        $router->handleArgs(array('hello'));
-    }
-
-    /**
-     * @expectedException Clue\Commander\NoRouteFoundException
-     */
-    public function testHandleAddedRouteWithoutEllipseArgumentsDoesNotMatch()
-    {
-        $router = new Router();
-        $router->add('hello <names>...', 'var_dump');
-
-        $router->handleArgs(array('hello'));
-    }
-
-    /**
-     * @expectedException Clue\Commander\NoRouteFoundException
-     */
-    public function testHandleAddedRouteWithKeywordAfterEllipseArgumentsDoesNotMatch()
-    {
-        $router = new Router();
-        $router->add('hello <names>... test', 'var_dump');
-
-        $router->handleArgs(array('hello', 'a', 'b', 'test'));
-    }
-
-    /**
-     * @expectedException Clue\Commander\NoRouteFoundException
-     */
-    public function testHandleAddedRouteWithoutKeywordAfterOptionalKeywordDoesNotMatch()
-    {
-        $router = new Router();
-        $router->add('hello [user] user', 'var_dump');
-
-        $router->handleArgs(array('hello', 'user'));
-    }
-
-    /**
-     * @expectedException Clue\Commander\NoRouteFoundException
-     */
-    public function testHandleRouteWithoutLongOptionDoesNotMatch()
-    {
-        $router = new Router();
-        $router->add('hello [--test]', 'var_dump');
-
-        $router->handleArgs(array('hello', 'test'));
-    }
-
-    /**
-     * @expectedException Clue\Commander\NoRouteFoundException
-     */
-    public function testHandleRouteWithoutShortOptionDoesNotMatch()
-    {
-        $router = new Router();
-        $router->add('hello [-i]', 'var_dump');
-
-        $router->handleArgs(array('hello', 'test'));
-    }
-
-    /**
-     * @expectedException Clue\Commander\NoRouteFoundException
-     */
-    public function testHandleRouteWithOptionInsteadOfArgumentDoesNotMatch()
-    {
-        $router = new Router();
-        $router->add('hello <name>', 'var_dump');
-
-        $router->handleArgs(array('hello', '--test'));
-    }
-
-    /**
-     * @expectedException Clue\Commander\NoRouteFoundException
-     */
-    public function testHandleRouteWithExplicitDashArgumentInsteadOfOptionDoesNotMatch()
-    {
-        $router = new Router();
-        $router->add('hello [--test]', 'var_dump');
-
-        $router->handleArgs(array('hello', '--', '--test'));
-    }
-
-    /**
-     * @expectedException Clue\Commander\NoRouteFoundException
-     */
-    public function testHandleRouteWordDoesNotMatch()
-    {
-        $router = new Router();
-        $router->add('hello word [<any>]', 'var_dump');
-
-        $router->handleArgs(array('hello', 'not', 'word'));
     }
 }
