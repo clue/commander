@@ -47,6 +47,18 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'word with optional short option' => array(
                 'hello [-f]'
             ),
+            'word with required long option with required value' => array(
+                'hello --date=<when>'
+            ),
+            'word with required long option with optional value' => array(
+                'hello --date[=<when>]'
+            ),
+            'word with required short option with required value' => array(
+                'hello -f=<date>'
+            ),
+            'word with required short option with optional value' => array(
+                'hello -f[=<date>]'
+            ),
 
             'word with ellipse arguments' => array(
                 'hello <names>...'
@@ -120,6 +132,9 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'option name is missing' => array(
                 '-'
             ),
+            'long option with empty placeholder name' => array(
+                '--date=<>'
+            )
         );
     }
 
