@@ -11,11 +11,126 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $this->tokenizer = new Tokenizer();
     }
 
-    public function testSingleWord()
+    public function provideValidTokens()
     {
-        $tokens = $this->tokenizer->createToken("hello");
+        return array(
+            'single word' => array(
+                'hello'
+            ),
+            'sentence with multiple words' => array(
+                'hello world'
+            ),
 
-        $this->assertEquals('hello', $tokens);
+            'word with argument' => array(
+                'hello <name>'
+            ),
+            'word with optional argument' => array(
+                'hello [<name>]'
+            ),
+
+            'word with optional word' => array(
+                'hello [world]'
+            ),
+            'word with optional nested sentence' => array(
+                'hello [world [now]]'
+            ),
+
+            'word with required long option' => array(
+                'hello --upper'
+            ),
+            'word with optional short option' => array(
+                'hello -f'
+            ),
+            'word with optional long option' => array(
+                'hello [--upper]'
+            ),
+            'word with optional short option' => array(
+                'hello [-f]'
+            ),
+
+            'word with ellipse arguments' => array(
+                'hello <names>...'
+            ),
+            'word with optional ellipse arguments' => array(
+                'hello [<names>...]'
+            ),
+            'word with optional ellipse short option' => array(
+                'hello [-v...]'
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider provideValidTokens
+     * @param string $expression
+     */
+    public function testValidTokens($expression)
+    {
+        $tokens = $this->tokenizer->createToken($expression);
+
+        $this->assertEquals($expression, $tokens);
+    }
+
+    public function provideInvalidTokens()
+    {
+        return array(
+            'empty' => array(
+                ''
+            ),
+            'whitespace only' => array(
+                "\t\r\n"
+            ),
+
+            'missing whitespace between arguments' => array(
+                '<first><second>'
+            ),
+            'missing whitespace between argument and optional word' => array(
+                '<first>[word]'
+            ),
+
+            'incomplete parameter block' => array(
+                '<incomplete'
+            ),
+            'incomplete optional argument' => array(
+                '[<word>'
+            ),
+            'incomplete optional block in optional block' => array(
+                '[[test]'
+            ),
+            'closing optional block without opening' => array(
+                'test]'
+            ),
+
+            'empty sentence in optional block' => array(
+                '[]'
+            ),
+            'empty word with ellipse in optional block' => array(
+                '[...]'
+            ),
+            'optional block in optional block' => array(
+                '[[test]]'
+            ),
+
+            'long option must contain at least two characters' => array(
+                '--s'
+            ),
+            'short optiona must only be single character' => array(
+                '-nope'
+            ),
+            'option name is missing' => array(
+                '-'
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider provideInvalidTokens
+     * @expectedException InvalidArgumentException
+     * @param string $expression
+     */
+    public function testInvalidTokens($expression)
+    {
+        $this->tokenizer->createToken($expression);
     }
 
     public function testMultipleWordsWithWhitespace()
@@ -25,191 +140,10 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('hello world', $tokens);
     }
 
-    public function testWordWithArgument()
-    {
-        $tokens = $this->tokenizer->createToken("hello <name>");
-
-        $this->assertEquals('hello <name>', $tokens);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testIncompleteArgument()
-    {
-        $this->tokenizer->createToken("<incomplete");
-    }
-
-    public function testWordWithOptionalArgument()
-    {
-        $tokens = $this->tokenizer->createToken("hello [<name>]");
-
-        $this->assertEquals('hello [<name>]', $tokens);
-    }
-
-    public function testWordWithOptionalLongOption()
-    {
-        $tokens = $this->tokenizer->createToken("hello [--upper]");
-
-        $this->assertEquals('hello [--upper]', $tokens);
-    }
-
-    public function testWordWithOptionalShortOption()
-    {
-        $tokens = $this->tokenizer->createToken("hello [-f]");
-
-        $this->assertEquals('hello [-f]', $tokens);
-    }
-
-    public function testWordWithRequiredLongOption()
-    {
-        $tokens = $this->tokenizer->createToken("hello --upper");
-
-        $this->assertEquals('hello --upper', $tokens);
-    }
-
-    public function testWordWithRequiredShortOption()
-    {
-        $tokens = $this->tokenizer->createToken("hello -f");
-
-        $this->assertEquals('hello -f', $tokens);
-    }
-
-    public function testWordWithArgumentEllipses()
-    {
-        $tokens = $this->tokenizer->createToken("hello <name>...");
-
-        $this->assertEquals('hello <name>...', $tokens);
-    }
-
-    public function testWordWithOptionalEllipseArguments()
-    {
-        $tokens = $this->tokenizer->createToken("hello [<name>...]");
-
-        $this->assertEquals('hello [<name>...]', $tokens);
-    }
-
-    public function testWordWithOptionalEllipseShortOption()
-    {
-        $tokens = $this->tokenizer->createToken("hello [-v...]");
-
-        $this->assertEquals('hello [-v...]', $tokens);
-    }
-
     public function testWordWithOptionalEllipseArgumentsWithWhitespace()
     {
         $tokens = $this->tokenizer->createToken("  hello  [  <  name  >  ...  ]  ");
 
         $this->assertEquals('hello [<name>...]', $tokens);
-    }
-
-    public function testOptionalKeyword()
-    {
-        $tokens = $this->tokenizer->createToken("hello [world]");
-
-        $this->assertEquals('hello [world]', $tokens);
-    }
-
-    public function testOptionalKeywordWithNestedOptionalSentence()
-    {
-        $tokens = $this->tokenizer->createToken("hello [world [now]]");
-
-        $this->assertEquals('hello [world [now]]', $tokens);
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testEmptyIsNotAToken()
-    {
-        $this->tokenizer->createToken('');
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testWhitespaceOnlyIsNotAToken()
-    {
-        $this->tokenizer->createToken("\t\r\n");
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testMissingWhitespaceBetweenArguments()
-    {
-        $this->tokenizer->createToken("<first><second>");
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testMissingWhitespaceBetweenArgumentAndOptionalWord()
-    {
-        $this->tokenizer->createToken("<first>[word]");
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testIncompleteOptionalArgument()
-    {
-        $this->tokenizer->createToken("[<word>");
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testClosingOptionalBlockWithoutOpening()
-    {
-        $this->tokenizer->createToken("test]");
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testEmptySentenceInOptionalBlock()
-    {
-        $this->tokenizer->createToken("[]");
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testOptionalBlockInOptionalBlock()
-    {
-        $this->tokenizer->createToken("[[test]]");
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testEmptyWordWithEllipseInOptionalBlock()
-    {
-        $this->tokenizer->createToken("[...]");
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testIncompleteOptionalBlockInOptionalBlock()
-    {
-        $this->tokenizer->createToken("[[test]");
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testOptionalLongOptionMustContainAtLeastTwoChars()
-    {
-        $this->tokenizer->createToken("hello [--s]");
-    }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testOptionalShortOptionMustOnlyBeSingleCharacter()
-    {
-        $this->tokenizer->createToken("hello [-nope]");
     }
 }
