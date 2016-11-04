@@ -240,20 +240,30 @@ $router->add('[--sort[=<param>]] [-i=<start>] user list', function (array $args)
 // matches: user list
 // matches: user list --sort
 // matches: user list --sort=size
+// matches: user list --sort size
 // matches: user list -i=10
+// matches: user list -i 10
 // matches: user list -i10
 // matches: user -i=10 list
 // matches: --sort -- user list
+// matches: --sort size user list
+// matches: user list --sort -i=10
 // does not match: user list -i (missing option value)
+// does not match: user list -i --sort (missing option value)
 ```
 
 As seen in the example, option values in the `$args` array will be given as
 strings if passed in the user input.
-Both short and long options can accept values with the `{name}={value}` syntax
-in the user input.
-Short options also support the short notation where the equal sign may be omitted.
+Both short and long options can accept values with the recommended equation
+symbol syntax (`-i=10` and `--sort=size`  respectively) in the user input.
+Both short and long options can also accept values with the common space-separated
+syntax (`-i 10` and `--sort size` respectively) in the user input.
+Short options can also accept values with the common concatenated syntax
+with no separator inbetween (`-i10`) in the user input.
 Note that it is highly recommended to always make sure any options that accept
 values are near the left side of your route expression.
+This is needed in order to make sure space-separated values are consumed as
+option values instead of being misinterpreted as keywords or arguments.
 
 #### remove()
 

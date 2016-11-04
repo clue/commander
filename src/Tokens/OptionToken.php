@@ -37,15 +37,39 @@ class OptionToken implements TokenInterface
     public function matches(array &$input, array &$output)
     {
         $len = strlen($this->name);
+        $foundName = null;
 
         foreach ($input as $key => $value) {
+            // already found a match with no value append in previous iteration
+            if ($foundName !== null) {
+                if (substr($value, 0, 1) === '-') {
+                    // we expected a value but actually found another option
+
+                    if ($this->required) {
+                        // option requires a value => skip and keep searching
+                        $foundName = null;
+                    } else {
+                        // option does not require a value, break in order to use `false`
+                        break;
+                    }
+                } else {
+                    // we found a value after the key in the previous iteration
+                    unset($input[$foundName]);
+                    unset($input[$key]);
+                    $output[ltrim($this->name, '-')] = $value;
+                    return true;
+                }
+            }
+
             if (strpos($value, $this->name) === 0) {
                 // found option with this prefix
 
                 if ($value === $this->name) {
                     // this is an exact match (no value appended)
-                    if ($this->required) {
-                        // value is required => keep searching
+
+                    // if this accepts a value, check next iteration for value
+                    if ($this->placeholder !== null) {
+                        $foundName = $key;
                         continue;
                     }
 
@@ -70,6 +94,13 @@ class OptionToken implements TokenInterface
                 // double dash found => no option after this point
                 break;
             }
+        }
+
+        if ($foundName !== null && !$this->required) {
+            // found a key in the last iteration and no following value
+            unset($input[$foundName]);
+            $output[ltrim($this->name, '-')] = false;
+            return true;
         }
 
         return false;
