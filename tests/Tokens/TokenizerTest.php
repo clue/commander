@@ -79,6 +79,9 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'optional alternative long and short options' => array(
                 '[--help | -h]'
             ),
+            'alternative blocks with sentence' => array(
+                'a | a b | c'
+            )
         );
     }
 
@@ -252,5 +255,12 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $tokens = $this->tokenizer->createToken('(((a) b) (c (d)))');
 
         $this->assertEquals('a b c d', $tokens);
+    }
+
+    public function testNestedAlternativeBlockWithAlternativeBlockCanBeMerged()
+    {
+        $tokens = $this->tokenizer->createToken('a | (b | c) | d');
+
+        $this->assertEquals('a | b | c | d', $tokens);
     }
 }
