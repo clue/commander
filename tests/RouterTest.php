@@ -109,6 +109,73 @@ class RouterTest extends PHPUnit_Framework_TestCase
                 array('hello', '--'),
                 array()
             ),
+
+            'word with required long option with required value' => array(
+                'hello --name=<yes>',
+                array('hello', '--name=demo'),
+                array('name' => 'demo'),
+            ),
+            'word with required long option with required value separated' => array(
+                'hello --name=<yes>',
+                array('hello', '--name', 'demo'),
+                array('name' => 'demo'),
+            ),
+            'word with required long option with optional value' => array(
+                'hello --name[=<yes>]',
+                array('hello', '--name=demo'),
+                array('name' => 'demo'),
+            ),
+            'word with required long option with optional value separated' => array(
+                'hello --name[=<yes>]',
+                array('hello', '--name', 'demo'),
+                array('name' => 'demo'),
+            ),
+            'word with required long option witout optional value' => array(
+                'hello --name[=<yes>]',
+                array('hello', '--name'),
+                array('name' => false),
+            ),
+            'word with required long option with following option instead of value' => array(
+                'hello --name[=<yes>] [--yes]',
+                array('hello', '--name', '--yes'),
+                array('name' => false, 'yes' => false),
+            ),
+
+            'word with required short option with required value' => array(
+                'hello -i=<n>',
+                array('hello', '-i=demo'),
+                array('i' => 'demo'),
+            ),
+            'word with required short option with required value concatenated' => array(
+                'hello -i=<n>',
+                array('hello', '-idemo'),
+                array('i' => 'demo'),
+            ),
+            'word with required short option with required value separated' => array(
+                'hello -i=<n>',
+                array('hello', '-i', 'demo'),
+                array('i' => 'demo'),
+            ),
+            'word with required short option with optional value' => array(
+                'hello -i[=<n>]',
+                array('hello', '-i=demo'),
+                array('i' => 'demo'),
+            ),
+            'word with required short option with optional value separated' => array(
+                'hello -i[=<n>]',
+                array('hello', '-i', 'demo'),
+                array('i' => 'demo'),
+            ),
+            'word with required short option without optional value' => array(
+                'hello -i[=<n>]',
+                array('hello', '-i'),
+                array('i' => false),
+            ),
+            'word with required short option with following option instead of value' => array(
+                'hello -i[=<n>] [-n]',
+                array('hello', '-i', '-n'),
+                array('i' => false, 'n' => false),
+            ),
         );
     }
 
@@ -184,6 +251,36 @@ class RouterTest extends PHPUnit_Framework_TestCase
             'invalid word in sentence' => array(
                 'hello word [<any>]',
                 array('hello', 'not', 'word')
+            ),
+
+            'invalid long option shares same prefix' => array(
+                'test --option',
+                array('test', '--options')
+            ),
+            'value passed to long option but does not accept value' => array(
+                'test --option',
+                array('test', '--option=value')
+            ),
+            'without required long option value' => array(
+                'test --option=<value>',
+                array('test', '--option')
+            ),
+            'uses option instead of required long option value' => array(
+                'test --option=<value>',
+                array('test', '--option', '--value')
+            ),
+
+            'short option shares same prefix but does not accept value' => array(
+                'test -i',
+                array('test', '-ix')
+            ),
+            'without required short option value' => array(
+                'test -i=<value>',
+                array('test', '-i')
+            ),
+            'uses option instead of required short option value' => array(
+                'test -i=<value>',
+                array('test', '-i', '-n')
             ),
         );
     }

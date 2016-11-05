@@ -20,16 +20,6 @@ class Tokenizer
         "\n",
     );
 
-    /** anything that can not be part of a single word token */
-    private $nw = array(
-        ' ',
-        "\t",
-        "\r",
-        "\n",
-        ']'
-    );
-
-
     /**
      * Creates a Token from the given route expression
      *
@@ -141,10 +131,11 @@ class Tokenizer
 
     private function readWord($input, &$i)
     {
-        // static word token, buffer until next whitespace
-        for($start = $i++; isset($input[$i]) && !in_array($input[$i], $this->nw); ++$i);
+        // static word token, buffer until next whitespace or closing square bracket
+        preg_match('/(?:[^\[\]\s]+|\[[^\]]+\])+/', $input, $matches, 0, $i);
 
-        $word = substr($input, $start, $i - $start);
+        $word = $matches[0];
+        $i += strlen($word);
 
         $ellipse = false;
         // ends with `...` means that any number of arguments are accepted
@@ -153,8 +144,26 @@ class Tokenizer
             $ellipse = true;
         }
 
-        if (substr($word, 0, 1) === '-') {
-            $token = new OptionToken($word);
+        if (isset($word[0]) && $word[0] === '-') {
+            $required = true;
+            $placeholder = null;
+
+            // placeholder value is optional => remove square brackets
+            if (substr($word, -1) === ']') {
+                $required = false;
+                $word = trim(str_replace(array('[', ']'), '', $word));
+            }
+
+            // value is present => remove placeholder name from word
+            $pos = strpos($word, '=');
+            if ($pos !== false) {
+                $placeholder = trim(substr($word, $pos + 1), '<>');
+                $word = substr($word, 0, $pos);
+            } else {
+                $required = false;
+            }
+
+            $token = new OptionToken($word, $placeholder, $required);
         } else{
             $token = new WordToken($word);
         }
