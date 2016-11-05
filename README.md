@@ -441,7 +441,7 @@ The recommended way to install this library is [through Composer](http://getcomp
 This will install the latest supported version:
 
 ```bash
-$ composer require clue/commander:^0.2
+$ composer require clue/commander:^1.0
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
@@ -452,5 +452,9 @@ MIT
 
 ## More
 
-* If you want to build an interactive CLI tool, you may want to look into using [clue/stdio-react](https://github.com/clue/php-stdio-react) in order to react to commands from STDIN.
-* If you build an interactive CLI tool that reads a command line from STDIN, you may want to use [clue/arguments](https://github.com/clue/php-arguments) in order to split this string up into its individual arguments.
+* If you want to build an interactive CLI tool, you may want to look into using
+  [clue/stdio-react](https://github.com/clue/php-stdio-react) in order to react
+  to commands from STDIN.
+* If you build an interactive CLI tool that reads a command line from STDIN, you
+  may want to use [clue/arguments](https://github.com/clue/php-arguments) in
+  order to split this string up into its individual arguments.

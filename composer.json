@@ -1,7 +1,7 @@
 {
     "name": "clue/commander",
     "description": "Finally a sane way to register available commands and arguments and match your command line in PHP.",
-    "keywords": ["arguments", "command", "command line", "argv", "args", "parse"],
+    "keywords": ["arguments", "command", "router", "command line", "argv", "args", "getopt", "parse"],
     "homepage": "https://github.com/clue/php-commander",
     "license": "MIT",
     "authors": [
