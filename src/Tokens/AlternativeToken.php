@@ -38,6 +38,6 @@ class AlternativeToken implements TokenInterface
 
     public function __toString()
     {
-        return '(' . implode(' | ', $this->tokens) . ')';
+        return implode(' | ', $this->tokens);
     }
 }

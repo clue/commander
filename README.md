@@ -44,7 +44,7 @@ $router->add('sleep <seconds>', function (array $args) {
 $router->add('echo <words>...', function (array $args) {
     echo join(' ', $args['words']) . PHP_EOL;
 });
-$router->add('[--help]', function () use ($router) {
+$router->add('[--help | -h]', function () use ($router) {
     echo 'Usage:' . PHP_EOL;
     foreach ($router->getRoutes() as $route) {
         echo '  ' .$route . PHP_EOL;
@@ -132,10 +132,14 @@ $router->add('user (list | listing | ls)', function () {
 
 Note that alternative blocks can be added to pretty much any token in your route
 expression.
-In particular, you also combine them with optional blocks (see below) in order
-to optionally accept any of the alternatives, but never multiple.
-Note that alternative blocks always required parentheses in order to make its
-scope more obvious.
+Note that alternative blocks do not require parentheses and the alternative mark
+(`|`) always works at the current block level, which may not always be obvious.
+Unless you add some parenthesis, `a b | c d` will be be interpreted as
+`(a b) | (c d)` by default.
+Parenthesis can be used to interpret this as `a (b | c) d` instead.
+In particular, you can also combine alternative blocks with optional blocks
+(see below) in order to optionally accept only one of the alternatives, but not
+multiple.
 
 You can use any number of placeholders to mark required arguments like this:
 
@@ -182,6 +186,9 @@ that the tokens will be matched from left to right, so if the optional token
 matches, then the remainder will be processed by the following tokens.
 As a rule of thumb, make sure optional tokens are near the end of your route
 expressions and you won't notice this subtle effect.
+Optional blocks accept alternative groups, so that `[a | b]` is actually
+equivalent to the longer form `[(a | b)]`.
+In particular, this is often used for alternative options as below.
 
 You can accept any number of arguments by appending ellipses like this:
 
@@ -249,6 +256,23 @@ of where they have been defined.
 Note that the square brackets are in the route expression are required to mark
 this optional as optional, you can also omit these square brackets if you really
 want a required option.
+
+You can combine short and long options in an alternative block like this:
+
+```php
+$router->add('user setup [--help | -h]', function (array $args) {
+    assert(!isset($args['help']) || $args['help'] === false);
+    assert(!isset($args['h']) || $args['h'] === false);
+    assert(!isset($args['help'], $args['h']); 
+});
+// matches: user setup
+// matches: user setup --help
+// matches: user setup -h
+// does not match: user setup --help -h (only accept eithers, not both)
+```
+
+As seen in the example, this optionally accepts either the short or the long
+option anywhere in the user input, but never both at the same time.
 
 You can optionally accept or require values for short and long options like this:
 

@@ -70,11 +70,14 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
                 'hello [-v...]'
             ),
 
-            'alternative words' => array(
-                '(hello | world)'
+            'alternative words in sentence' => array(
+                'hello | hallo'
             ),
             'alternative long or short options' => array(
-                '(--help | -h)'
+                '--help | -h'
+            ),
+            'optional alternative long and short options' => array(
+                '[--help | -h]'
             ),
         );
     }
@@ -146,14 +149,20 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'empty sentence in alternative block' => array(
                 '()'
             ),
-            'single word in alternative block' => array(
-                '(hello)'
-            ),
             'invalid end for alternative block' => array(
                 '(hello]'
             ),
             'missing end for alternative block' => array(
                 '(hello'
+            ),
+            'single alternative marker' => array(
+                '|',
+            ),
+            'nothing after alternative marker' => array(
+                'a|'
+            ),
+            'nothing before alternative marker' => array(
+                '|b'
             ),
         );
     }
@@ -180,5 +189,48 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $tokens = $this->tokenizer->createToken("  hello  [  <  name  >  ...  ]  ");
 
         $this->assertEquals('hello [<name>...]', $tokens);
+    }
+
+    public function testAlternativeOptionsWithWhitespace()
+    {
+        $tokens = $this->tokenizer->createToken(' --help|  -h ');
+
+        $this->assertEquals('--help | -h', $tokens);
+    }
+
+    public function testParenthesesForAlternativeRootSentenceIsOptional()
+    {
+        $tokens = $this->tokenizer->createToken('(hello | world)');
+
+        $this->assertEquals('hello | world', $tokens);
+    }
+
+    public function testParenthesesForAlternativeOptionsIsOptional()
+    {
+        $tokens = $this->tokenizer->createToken('(--help | -h)');
+
+        $this->assertEquals('--help | -h', $tokens);
+    }
+
+
+    public function testParenthesesForAlternativeOptionGroupIsOptional()
+    {
+        $tokens = $this->tokenizer->createToken('[(hello | world)]');
+
+        $this->assertEquals('[hello | world]', $tokens);
+    }
+
+    public function testParenthesesForSingleWordIsOptional()
+    {
+        $tokens = $this->tokenizer->createToken('(hello)');
+
+        $this->assertEquals('hello', $tokens);
+    }
+
+    public function testParenthesesAroundWordInSentenceIsOptional()
+    {
+        $tokens = $this->tokenizer->createToken('a (b) c');
+
+        $this->assertEquals('a b c', $tokens);
     }
 }

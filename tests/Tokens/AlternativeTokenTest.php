@@ -16,6 +16,14 @@ class AlternativeTokenTest extends PHPUnit_Framework_TestCase
     /**
      * @expectedException InvalidArgumentException
      */
+    public function testRequiresTokens()
+    {
+        new AlternativeToken(array());
+    }
+
+    /**
+     * @expectedException InvalidArgumentException
+     */
     public function testRequiresValidTokens()
     {
         new AlternativeToken(array(

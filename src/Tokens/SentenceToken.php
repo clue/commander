@@ -43,6 +43,12 @@ class SentenceToken implements TokenInterface
 
     public function __toString()
     {
-        return implode(' ', $this->tokens);
+        return implode(' ', array_map(function (TokenInterface $token) {
+            // alternative token should be surrounded in parentheses
+            if ($token instanceof AlternativeToken) {
+                return '(' . $token . ')';
+            }
+            return (string)$token;
+        }, $this->tokens));
     }
 }
