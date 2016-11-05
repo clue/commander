@@ -164,6 +164,19 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'nothing before alternative marker' => array(
                 '|b'
             ),
+
+            'single ellipse' => array(
+                '...'
+            ),
+            'ellipse after optional group' => array(
+                '[a]...'
+            ),
+            'ellipse after alternative group' => array(
+                '(a | b)...'
+            ),
+            'ellipse after word in parentheses' => array(
+                '(a)...'
+            ),
         );
     }
 

@@ -203,8 +203,8 @@ $router->add('user delete <names>...', function (array $args) {
 // does not match: user delete (missing required argument)
 ```
 
-Note that trailing ellipses can be added to pretty much any token in your route
-expression, however they are most commonly used for arguments as above.
+Note that trailing ellipses can be added to any argument, word or option token
+in your route expression. They are most commonly used for arguments as above.
 The above requires at least one argument, see the following if you want this
 to be completely optional.
 Technically, the ellipse tokens can appear anywhere in the route expression, but

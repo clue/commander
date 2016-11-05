@@ -6,10 +6,12 @@ use InvalidArgumentException;
 
 class EllipseToken implements TokenInterface
 {
+    private $token;
+
     public function __construct(TokenInterface $token)
     {
-        if ($token instanceof self) {
-            throw new InvalidArgumentException('Nested ellipse block is superfluous');
+        if (!$token instanceof ArgumentToken && !$token instanceof OptionToken && !$token instanceof WordToken) {
+            throw new InvalidArgumentException('Ellipse only for individual words/arguments/options');
         }
 
         $this->token = $token;
