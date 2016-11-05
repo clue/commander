@@ -233,4 +233,11 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals('a b c', $tokens);
     }
+
+    public function testNestedParenthesesAroundWordsInSentenceAreOptional()
+    {
+        $tokens = $this->tokenizer->createToken('(((a) b) (c (d)))');
+
+        $this->assertEquals('a b c d', $tokens);
+    }
 }
