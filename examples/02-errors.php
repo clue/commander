@@ -18,10 +18,9 @@ $router->add('sleep <seconds>', function (array $args) {
 $router->add('echo <words>...', function (array $args) {
     echo join(' ', $args['words']) . PHP_EOL;
 });
-$router->add('', function () use ($router) {
+$router->add('[--help]', function () use ($router) {
     echo 'Usage:' . PHP_EOL;
     foreach ($router->getRoutes() as $route) {
-        if ($route == '') continue;
         echo '  ' .$route . PHP_EOL;
     }
 });
