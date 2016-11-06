@@ -75,7 +75,7 @@ class Tokenizer
         for (;isset($input[$i]) && in_array($input[$i], $this->ws); ++$i);
     }
 
-    private function readToken($input, &$i)
+    private function readToken($input, &$i, $readEllipses = true)
     {
         if ($input[$i] === '<') {
             $token = $this->readArgument($input, $i);
@@ -92,7 +92,7 @@ class Tokenizer
         $this->consumeOptionalWhitespace($input, $start);
 
         // found `...` after some optional whitespace
-        if (substr($input, $start, 3) === '...') {
+        if ($readEllipses && substr($input, $start, 3) === '...') {
             $token = new EllipseToken($token);
             $i = $start + 3;
         }
@@ -234,7 +234,9 @@ class Tokenizer
                 $this->consumeOptionalWhitespace($input, $i);
 
                 // placeholder may only contain single token because it's terminated at ambiguous whitespace
-                $placeholder = $this->readToken($input, $i);
+                // we explicitly skip consuming the ellipses as part of the option value here
+                // trailing ellipses should be part of the whole option, not only its value
+                $placeholder = $this->readToken($input, $i, false);
                 $required = true;
             } else {
                 // ignore unknown character at cursor position because it is not part of this option value

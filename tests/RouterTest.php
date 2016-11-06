@@ -181,6 +181,11 @@ class RouterTest extends PHPUnit_Framework_TestCase
                 array('hello', '--name', 'b'),
                 array('name' => 'b'),
             ),
+            'word with required long option with required keyword ellipses' => array(
+                'hello --ask=no...',
+                array('hello', '--ask=no', '--ask=no'),
+                array('ask' => array('no', 'no')),
+            ),
 
             'word with required short option with required value' => array(
                 'hello -i=<n>',
