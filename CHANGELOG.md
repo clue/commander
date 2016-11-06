@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.1.0 (2016-11-06)
+
+* Feature: Support alternative groups and optional parentheses
+  (#15 by @clue)
+
+* Fix: Fix multiple arguments, only skip whitespace inbetweeen once
+  (#16 by @clue)
+
 ## 1.0.0 (2016-11-05)
 
 * First stable release, now following SemVer
