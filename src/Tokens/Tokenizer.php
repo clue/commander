@@ -101,12 +101,13 @@ class Tokenizer
         $token = new ArgumentToken(trim($word));
 
         // skip any whitespace characters between end of block and `...`
-        $this->consumeOptionalWhitespace($input, $i);
+        $start = $i;
+        $this->consumeOptionalWhitespace($input, $start);
 
         // followed by `...` means that any number of arguments are accepted
-        if (substr($input, $i, 3) === '...') {
+        if (substr($input, $start, 3) === '...') {
             $token = new EllipseToken($token);
-            $i += 3;
+            $i = $start + 3;
         }
 
         return $token;

@@ -27,6 +27,9 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'word with optional argument' => array(
                 'hello [<name>]'
             ),
+            'word with multiple arguments' => array(
+                'hello <firstname> <lastname>'
+            ),
 
             'word with optional word' => array(
                 'hello [world]'
