@@ -10,7 +10,7 @@ class OptionToken implements TokenInterface
     private $placeholder;
     private $required;
 
-    public function __construct($name, $placeholder = null, $required = false)
+    public function __construct($name, TokenInterface $placeholder = null, $required = false)
     {
         if (!isset($name[1]) || $name[0] !== '-') {
             throw new InvalidArgumentException('Option name must start with a dash');
@@ -22,11 +22,12 @@ class OptionToken implements TokenInterface
             throw new InvalidArgumentException('Long option must consist of at least two characters');
         }
 
-        if ($placeholder !== null && !isset($placeholder[0])) {
-            throw new InvalidArgumentException('Option placeholder must not be empty');
+        if ($placeholder !== null && !$placeholder instanceof ArgumentToken) {
+            throw new InvalidArgumentException('Option placeholder must be unset or an argument');
         }
+
         if ($required && $placeholder === null) {
-            throw new InvalidArgumentException('Requires placeholder name when option value is required');
+            throw new InvalidArgumentException('Requires a placeholder when option value is marked required');
         }
 
         $this->name = $name;
@@ -114,7 +115,7 @@ class OptionToken implements TokenInterface
             if (!$this->required) {
                 $ret .= '[';
             }
-            $ret .= '=<' . $this->placeholder . '>';
+            $ret .= '=' . $this->placeholder;
             if (!$this->required) {
                 $ret .= ']';
             }

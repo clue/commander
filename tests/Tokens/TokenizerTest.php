@@ -116,7 +116,10 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
                 '<first>[word]'
             ),
 
-            'incomplete parameter block' => array(
+            'empty argument block' => array(
+                '<>'
+            ),
+            'incomplete argument block' => array(
                 '<incomplete'
             ),
             'incomplete optional argument' => array(
@@ -150,6 +153,12 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             ),
             'long option with empty placeholder name' => array(
                 '--date=<>'
+            ),
+            'option with incomplete placeholder' => array(
+                '--date=<a'
+            ),
+            'option with incomplete optional placeholder' => array(
+                '--date[=<a>'
             ),
 
             'empty sentence in alternative block' => array(

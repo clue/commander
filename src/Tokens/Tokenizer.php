@@ -189,45 +189,35 @@ class Tokenizer
 
     private function readWord($input, &$i)
     {
-        // static word token, buffer until next whitespace or closing square bracket
-        preg_match('/(?:[^\[\]\(\)\|\s]+|\[[^\]]+\])+/', $input, $matches, 0, $i);
+        // static word token, buffer until next whitespace or special char
+        preg_match('/[^\[\]\(\)\|\=\.\s]+/', $input, $matches, 0, $i);
 
-        $word = $matches[0];
+        $word = isset($matches[0]) ? $matches[0] : '';
         $i += strlen($word);
 
-        $ellipse = false;
-        // ends with `...` means that any number of arguments are accepted
-        if (substr($word, -3) === '...') {
-            $word = substr($word, 0, -3);
-            $ellipse = true;
-        } else {
-            $start = $i;
-            $this->consumeOptionalWhitespace($input, $start);
-
-            // found `...` after some optional whitespace
-            if (substr($input, $start, 3) === '...') {
-                $i = $start + 3;
-                $ellipse = true;
-            }
-        }
-
         if (isset($word[0]) && $word[0] === '-') {
-            $required = true;
-            $placeholder = null;
+            if (isset($input[$i + 2]) && $input[$i] === '[' && $input[$i + 1] === '=' && $input[$i + 2] === '<') {
+                // placeholder value is optional
+                // skip opening `[=`, read argument and expect closing bracket
+                $i += 2;
+                $placeholder = $this->readArgument($input, $i);
 
-            // placeholder value is optional => remove square brackets
-            if (substr($word, -1) === ']') {
+                if (!isset($input[$i]) || $input[$i] !== ']') {
+                    throw new InvalidArgumentException('Missing end of optional option value');
+                }
+
+                // skip trailing closing bracket
+                $i++;
                 $required = false;
-                $word = trim(str_replace(array('[', ']'), '', $word));
-            }
-
-            // value is present => remove placeholder name from word
-            $pos = strpos($word, '=');
-            if ($pos !== false) {
-                $placeholder = trim(substr($word, $pos + 1), '<>');
-                $word = substr($word, 0, $pos);
+            } elseif (isset($input[$i + 1]) && $input[$i] === '=' && $input[$i + 1] === '<') {
+                // placeholder value is required
+                // skip one character for `=` and read until end of <argument>
+                $i++;
+                $placeholder = $this->readArgument($input, $i);
+                $required = true;
             } else {
                 $required = false;
+                $placeholder = null;
             }
 
             $token = new OptionToken($word, $placeholder, $required);
@@ -235,8 +225,14 @@ class Tokenizer
             $token = new WordToken($word);
         }
 
-        if ($ellipse) {
+        // skip trailing whitespace to check for ellipses
+        $start = $i;
+        $this->consumeOptionalWhitespace($input, $start);
+
+        // found `...` after some optional whitespace
+        if (substr($input, $start, 3) === '...') {
             $token = new EllipseToken($token);
+            $i = $start + 3;
         }
 
         return $token;
