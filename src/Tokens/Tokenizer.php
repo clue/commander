@@ -196,28 +196,47 @@ class Tokenizer
         $i += strlen($word);
 
         if (isset($word[0]) && $word[0] === '-') {
-            if (isset($input[$i + 1]) && $input[$i] === '[' && $input[$i + 1] === '=') {
-                // placeholder value is optional
-                // skip opening `[=`, read placeholder token and expect closing bracket
-                // placeholder may contain alternatives because the surrounded brackets make this unambiguous
-                $i += 2;
-                $placeholder = $this->readAlternativeSentenceOrSingle($input, $i);
+            // starts with a `-` => this is an option
 
-                if (!isset($input[$i]) || $input[$i] !== ']') {
-                    throw new InvalidArgumentException('Missing end of optional option value');
+            // skip optional whitespace after option name in order to search for option value
+            $start = $i;
+            $this->consumeOptionalWhitespace($input, $start);
+
+            if (isset($input[$start]) && $input[$start] === '[') {
+                // opening bracket found (possibly an optional option value)
+
+                // skip optional whitespace after bracket in order to search for `=`
+                $start++;
+                $this->consumeOptionalWhitespace($input, $start);
+
+                if (isset($input[$start]) && $input[$start] === '=') {
+                    // found `[=` for optional value, read placeholder token and expect closing bracket
+                    // placeholder may contain alternatives because the surrounded brackets make this unambiguous
+                    $i = $start + 1;
+                    $placeholder = $this->readAlternativeSentenceOrSingle($input, $i);
+
+                    if (!isset($input[$i]) || $input[$i] !== ']') {
+                        throw new InvalidArgumentException('Missing end of optional option value');
+                    }
+
+                    // skip trailing closing bracket
+                    $i++;
+                    $required = false;
+                } else {
+                    // ignore opening bracket because it is not part of an option value
+                    $required = false;
+                    $placeholder = null;
                 }
+            } elseif (isset($input[$start]) && $input[$start] === '=') {
+                // found `=` for required value, skip whitespace and read until end of token
+                $i = $start + 1;
+                $this->consumeOptionalWhitespace($input, $i);
 
-                // skip trailing closing bracket
-                $i++;
-                $required = false;
-            } elseif (isset($input[$i + 1]) && $input[$i] === '=') {
-                // placeholder value is required
-                // skip one character for `=` and read until end of <argument>
                 // placeholder may only contain single token because it's terminated at ambiguous whitespace
-                $i++;
                 $placeholder = $this->readToken($input, $i);
                 $required = true;
             } else {
+                // ignore unknown character at cursor position because it is not part of this option value
                 $required = false;
                 $placeholder = null;
             }

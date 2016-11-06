@@ -50,6 +50,9 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'word with optional short option' => array(
                 'hello [-f]'
             ),
+            'word with required short option and optional short option' => array(
+                'hello -i [-f]'
+            ),
             'word with required long option with required value' => array(
                 'hello --date=<when>'
             ),
@@ -330,18 +333,14 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
 
     public function testOptionWithRequiredWordValueWithWhitespace()
     {
-        $this->markTestIncomplete();
-
-        $tokens = $this->tokenizer->createToken('--option  = value ');
+        $tokens = $this->tokenizer->createToken('--option = value ');
 
         $this->assertEquals('--option=value', $tokens);
     }
 
     public function testOptionWithOptionalWordValueWithWhitespace()
     {
-        $this->markTestIncomplete();
-
-        $tokens = $this->tokenizer->createToken('--option [ = value ]');
+        $tokens = $this->tokenizer->createToken('--option [ = value ] ');
 
         $this->assertEquals('--option[=value]', $tokens);
     }
