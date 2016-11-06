@@ -30,7 +30,7 @@ class Tokenizer
     public function createToken($input)
     {
         $i = 0;
-        $token = $this->readSentenceOrSingle($input, $i);
+        $token = $this->readAlternativeSentenceOrSingle($input, $i);
 
         if (isset($input[$i])) {
             throw new \InvalidArgumentException('Invalid root token, expression has superfluous contents');
@@ -47,8 +47,8 @@ class Tokenizer
             $previous = $i;
             $this->consumeOptionalWhitespace($input, $i);
 
-            // end of input reached
-            if (!isset($input[$i]) || $input[$i] === ']') {
+            // end of input reached or end token found
+            if (!isset($input[$i]) || strpos('])|', $input[$i]) !== false) {
                 break;
             }
 
@@ -81,6 +81,8 @@ class Tokenizer
             return $this->readArgument($input, $i);
         } elseif ($input[$i] === '[') {
             return $this->readOptionalBlock($input, $i);
+        } elseif ($input[$i] === '(') {
+            return $this->readParenthesesBlock($input, $i);
         } else {
             return $this->readWord($input, $i);
         }
@@ -117,10 +119,10 @@ class Tokenizer
     {
         // advance to contents of optional block and read inner sentence
         $i++;
-        $token = $this->readSentenceOrSingle($input, $i);
+        $token = $this->readAlternativeSentenceOrSingle($input, $i);
 
         // above should stop at end token, otherwise syntax error
-        if (!isset($input[$i])) {
+        if (!isset($input[$i]) || $input[$i] !== ']') {
             throw new InvalidArgumentException('Missing end of optional block');
         }
 
@@ -130,10 +132,65 @@ class Tokenizer
         return new OptionalToken($token);
     }
 
+    private function readParenthesesBlock($input, &$i)
+    {
+        // advance to contents of parentheses block and read inner sentence
+        $i++;
+        $token = $this->readAlternativeSentenceOrSingle($input, $i);
+
+        // above should stop and end token, otherwise syntax error
+        if (!isset($input[$i]) || $input[$i] !== ')') {
+            throw new InvalidArgumentException('Missing end of alternative block');
+        }
+
+        // skip end token
+        $i++;
+
+        return $token;
+    }
+
+    /**
+     * reads a complete sentence token until end of group
+     *
+     * An "alternative sentence" may contain the following tokens:
+     * - an alternative group (which may consist of individual sentences separated by `|`)
+     * - a sentence (which may consist of multiple tokens)
+     * - a single token
+     *
+     * @param string $input
+     * @param int $i
+     * @throws InvalidArgumentException
+     * @return TokenInterface
+     */
+    private function readAlternativeSentenceOrSingle($input, &$i)
+    {
+        $tokens = array();
+
+        while (true) {
+            $tokens []= $this->readSentenceOrSingle($input, $i);
+
+            // end of input reached or end token found
+            if (!isset($input[$i]) || strpos('])', $input[$i]) !== false) {
+                break;
+            }
+
+            // cursor now at alternative symbol (all other symbols are already handled)
+            // skip alternative mark and continue with next alternative
+            $i++;
+        }
+
+        // return a single token as-is
+        if (isset($tokens[0]) && !isset($tokens[1])) {
+            return $tokens[0];
+        }
+
+        return new AlternativeToken($tokens);
+    }
+
     private function readWord($input, &$i)
     {
         // static word token, buffer until next whitespace or closing square bracket
-        preg_match('/(?:[^\[\]\s]+|\[[^\]]+\])+/', $input, $matches, 0, $i);
+        preg_match('/(?:[^\[\]\(\)\|\s]+|\[[^\]]+\])+/', $input, $matches, 0, $i);
 
         $word = $matches[0];
         $i += strlen($word);

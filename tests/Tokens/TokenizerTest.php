@@ -72,6 +72,19 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'word with optional ellipse short option' => array(
                 'hello [-v...]'
             ),
+
+            'alternative words in sentence' => array(
+                'hello | hallo'
+            ),
+            'alternative long or short options' => array(
+                '--help | -h'
+            ),
+            'optional alternative long and short options' => array(
+                '[--help | -h]'
+            ),
+            'alternative blocks with sentence' => array(
+                'a | a b | c'
+            )
         );
     }
 
@@ -137,7 +150,39 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             ),
             'long option with empty placeholder name' => array(
                 '--date=<>'
-            )
+            ),
+
+            'empty sentence in alternative block' => array(
+                '()'
+            ),
+            'invalid end for alternative block' => array(
+                '(hello]'
+            ),
+            'missing end for alternative block' => array(
+                '(hello'
+            ),
+            'single alternative marker' => array(
+                '|',
+            ),
+            'nothing after alternative marker' => array(
+                'a|'
+            ),
+            'nothing before alternative marker' => array(
+                '|b'
+            ),
+
+            'single ellipse' => array(
+                '...'
+            ),
+            'ellipse after optional group' => array(
+                '[a]...'
+            ),
+            'ellipse after alternative group' => array(
+                '(a | b)...'
+            ),
+            'ellipse after word in parentheses' => array(
+                '(a)...'
+            ),
         );
     }
 
@@ -170,5 +215,62 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $tokens = $this->tokenizer->createToken("  hello  [  <  name  >  ...  ]  ");
 
         $this->assertEquals('hello [<name>...]', $tokens);
+    }
+
+    public function testAlternativeOptionsWithWhitespace()
+    {
+        $tokens = $this->tokenizer->createToken(' --help|  -h ');
+
+        $this->assertEquals('--help | -h', $tokens);
+    }
+
+    public function testParenthesesForAlternativeRootSentenceIsOptional()
+    {
+        $tokens = $this->tokenizer->createToken('(hello | world)');
+
+        $this->assertEquals('hello | world', $tokens);
+    }
+
+    public function testParenthesesForAlternativeOptionsIsOptional()
+    {
+        $tokens = $this->tokenizer->createToken('(--help | -h)');
+
+        $this->assertEquals('--help | -h', $tokens);
+    }
+
+
+    public function testParenthesesForAlternativeOptionGroupIsOptional()
+    {
+        $tokens = $this->tokenizer->createToken('[(hello | world)]');
+
+        $this->assertEquals('[hello | world]', $tokens);
+    }
+
+    public function testParenthesesForSingleWordIsOptional()
+    {
+        $tokens = $this->tokenizer->createToken('(hello)');
+
+        $this->assertEquals('hello', $tokens);
+    }
+
+    public function testParenthesesAroundWordInSentenceIsOptional()
+    {
+        $tokens = $this->tokenizer->createToken('a (b) c');
+
+        $this->assertEquals('a b c', $tokens);
+    }
+
+    public function testNestedParenthesesAroundWordsInSentenceAreOptional()
+    {
+        $tokens = $this->tokenizer->createToken('(((a) b) (c (d)))');
+
+        $this->assertEquals('a b c d', $tokens);
+    }
+
+    public function testNestedAlternativeBlockWithAlternativeBlockCanBeMerged()
+    {
+        $tokens = $this->tokenizer->createToken('a | (b | c) | d');
+
+        $this->assertEquals('a | b | c | d', $tokens);
     }
 }

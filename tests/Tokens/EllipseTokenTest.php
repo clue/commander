@@ -1,19 +1,18 @@
 <?php
 
 use Clue\Commander\Tokens\EllipseToken;
+use Clue\Commander\Tokens\WordToken;
 
 class EllipseTokenTest extends PHPUnit_Framework_TestCase
 {
-    public function testSupportsAnyToken()
+    public function testSupportsWordToken()
     {
-        $token = $this->getMock('Clue\Commander\Tokens\TokenInterface');
-        new EllipseToken($token);
+        new EllipseToken(new WordToken('test'));
     }
 
     public function testDoesNotSupportNested()
     {
-        $token = $this->getMock('Clue\Commander\Tokens\TokenInterface');
-        $token = new EllipseToken($token);
+        $token = new EllipseToken(new WordToken('test'));
 
         $this->setExpectedException('InvalidArgumentException');
         new EllipseToken($token);

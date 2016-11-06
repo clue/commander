@@ -6,23 +6,26 @@ use InvalidArgumentException;
 
 class SentenceToken implements TokenInterface
 {
-    private $tokens;
+    private $tokens = array();
 
     public function __construct(array $tokens)
     {
-        if (count($tokens) < 2) {
-            throw new InvalidArgumentException('Sentence must contain at least 2 tokens');
-        }
-
         foreach ($tokens as $token) {
             if (!$token instanceof TokenInterface) {
                 throw new InvalidArgumentException('Sentence must only contain valid tokens');
             } elseif ($token instanceof self) {
-                throw new InvalidArgumentException('Sentence must not contain sub-sentence token');
+                // merge any tokens from sub-sentences
+                foreach ($token->tokens as $token) {
+                    $this->tokens []= $token;
+                }
+            } else {
+                $this->tokens []= $token;
             }
         }
 
-        $this->tokens = $tokens;
+        if (count($this->tokens) < 2) {
+            throw new InvalidArgumentException('Sentence must contain at least 2 tokens');
+        }
     }
 
     public function matches(array &$input, array &$output)
@@ -43,6 +46,12 @@ class SentenceToken implements TokenInterface
 
     public function __toString()
     {
-        return implode(' ', $this->tokens);
+        return implode(' ', array_map(function (TokenInterface $token) {
+            // alternative token should be surrounded in parentheses
+            if ($token instanceof AlternativeToken) {
+                return '(' . $token . ')';
+            }
+            return (string)$token;
+        }, $this->tokens));
     }
 }

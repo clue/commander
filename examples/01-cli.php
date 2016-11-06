@@ -12,7 +12,7 @@ $router->add('sleep <seconds>', function (array $args) {
 $router->add('echo <words>...', function (array $args) {
     echo join(' ', $args['words']) . PHP_EOL;
 });
-$router->add('[--help]', function () use ($router) {
+$router->add('[--help | -h]', function () use ($router) {
     echo 'Usage:' . PHP_EOL;
     foreach ($router->getRoutes() as $route) {
         echo '  ' .$route . PHP_EOL;
