@@ -143,6 +143,15 @@ class Tokenizer
         if (substr($word, -3) === '...') {
             $word = substr($word, 0, -3);
             $ellipse = true;
+        } else {
+            $start = $i;
+            $this->consumeOptionalWhitespace($input, $start);
+
+            // found `...` after some optional whitespace
+            if (substr($input, $start, 3) === '...') {
+                $i = $start + 3;
+                $ellipse = true;
+            }
         }
 
         if (isset($word[0]) && $word[0] === '-') {

@@ -158,6 +158,13 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('hello world', $tokens);
     }
 
+    public function testWordEllipseWithWhitespace()
+    {
+        $tokens = $this->tokenizer->createToken("  hello  ...    ");
+
+        $this->assertEquals('hello...', $tokens);
+    }
+
     public function testWordWithOptionalEllipseArgumentsWithWhitespace()
     {
         $tokens = $this->tokenizer->createToken("  hello  [  <  name  >  ...  ]  ");
