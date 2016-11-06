@@ -27,6 +27,9 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'word with optional argument' => array(
                 'hello [<name>]'
             ),
+            'word with multiple arguments' => array(
+                'hello <firstname> <lastname>'
+            ),
 
             'word with optional word' => array(
                 'hello [world]'
@@ -153,6 +156,13 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $tokens = $this->tokenizer->createToken(" hello\tworld\r\n");
 
         $this->assertEquals('hello world', $tokens);
+    }
+
+    public function testWordEllipseWithWhitespace()
+    {
+        $tokens = $this->tokenizer->createToken("  hello  ...    ");
+
+        $this->assertEquals('hello...', $tokens);
     }
 
     public function testWordWithOptionalEllipseArgumentsWithWhitespace()
