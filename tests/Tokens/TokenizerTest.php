@@ -41,7 +41,7 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'word with required long option' => array(
                 'hello --upper'
             ),
-            'word with optional short option' => array(
+            'word with required short option' => array(
                 'hello -f'
             ),
             'word with optional long option' => array(
@@ -61,6 +61,33 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             ),
             'word with required short option with optional value' => array(
                 'hello -f[=<date>]'
+            ),
+            'word with required long option with required word' => array(
+                'hello --date=now'
+            ),
+//             'word with required long option with required word ellipses' => array(
+//                 'hello --date=now...'
+//             ),
+            'word with required long option with required sentence nonsense' => array(
+                'hello --date=(hello world)'
+            ),
+            'word with required long option with optional word' => array(
+                'hello --date[=now]'
+            ),
+            'word with required long option with optional word ellipses' => array(
+                'hello --date[=now]...'
+            ),
+            'word with required long option with optional sentence does not require parentheses nonsense' => array(
+                'hello --date[=hello world]'
+            ),
+            'word with required long option with optional word ellipses does not require parentheses nonsense' => array(
+                'hello --date[=now...]'
+            ),
+            'word with required long option with required group does require parentheses' => array(
+                'hello --date=(a | b)'
+            ),
+            'word with required long option with optional group do not require parentheses' => array(
+                'hello --date[=a | b]'
             ),
 
             'word with ellipse arguments' => array(
@@ -281,5 +308,48 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $tokens = $this->tokenizer->createToken('a | (b | c) | d');
 
         $this->assertEquals('a | b | c | d', $tokens);
+    }
+
+    public function testOptionWithRequiredWordEllipses()
+    {
+        $this->markTestIncomplete();
+
+        $tokens = $this->tokenizer->createToken('hello --date=now...');
+
+        $this->assertEquals('hello --date=now...', $tokens);
+    }
+
+    public function testOptionWithRequiredWordEllipsesWithOptionalParentheses()
+    {
+        $this->markTestIncomplete();
+
+        $tokens = $this->tokenizer->createToken('hello (--date=(now))...');
+
+        $this->assertEquals('hello --date=now...', $tokens);
+    }
+
+    public function testOptionWithRequiredWordValueWithWhitespace()
+    {
+        $this->markTestIncomplete();
+
+        $tokens = $this->tokenizer->createToken('--option  = value ');
+
+        $this->assertEquals('--option=value', $tokens);
+    }
+
+    public function testOptionWithOptionalWordValueWithWhitespace()
+    {
+        $this->markTestIncomplete();
+
+        $tokens = $this->tokenizer->createToken('--option [ = value ]');
+
+        $this->assertEquals('--option[=value]', $tokens);
+    }
+
+    public function testParenthesesForSentenceInOptionalOptionValueIsOptional()
+    {
+        $tokens = $this->tokenizer->createToken('--option[=(hello world)]');
+
+        $this->assertEquals('--option[=hello world]', $tokens);
     }
 }

@@ -196,11 +196,12 @@ class Tokenizer
         $i += strlen($word);
 
         if (isset($word[0]) && $word[0] === '-') {
-            if (isset($input[$i + 2]) && $input[$i] === '[' && $input[$i + 1] === '=' && $input[$i + 2] === '<') {
+            if (isset($input[$i + 1]) && $input[$i] === '[' && $input[$i + 1] === '=') {
                 // placeholder value is optional
-                // skip opening `[=`, read argument and expect closing bracket
+                // skip opening `[=`, read placeholder token and expect closing bracket
+                // placeholder may contain alternatives because the surrounded brackets make this unambiguous
                 $i += 2;
-                $placeholder = $this->readArgument($input, $i);
+                $placeholder = $this->readAlternativeSentenceOrSingle($input, $i);
 
                 if (!isset($input[$i]) || $input[$i] !== ']') {
                     throw new InvalidArgumentException('Missing end of optional option value');
@@ -209,11 +210,12 @@ class Tokenizer
                 // skip trailing closing bracket
                 $i++;
                 $required = false;
-            } elseif (isset($input[$i + 1]) && $input[$i] === '=' && $input[$i + 1] === '<') {
+            } elseif (isset($input[$i + 1]) && $input[$i] === '=') {
                 // placeholder value is required
                 // skip one character for `=` and read until end of <argument>
+                // placeholder may only contain single token because it's terminated at ambiguous whitespace
                 $i++;
-                $placeholder = $this->readArgument($input, $i);
+                $placeholder = $this->readToken($input, $i);
                 $required = true;
             } else {
                 $required = false;

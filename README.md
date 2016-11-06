@@ -134,9 +134,9 @@ Note that alternative blocks can be added to pretty much any token in your route
 expression.
 Note that alternative blocks do not require parentheses and the alternative mark
 (`|`) always works at the current block level, which may not always be obvious.
-Unless you add some parenthesis, `a b | c d` will be be interpreted as
+Unless you add some parentheses, `a b | c d` will be be interpreted as
 `(a b) | (c d)` by default.
-Parenthesis can be used to interpret this as `a (b | c) d` instead.
+Parentheses can be used to interpret this as `a (b | c) d` instead.
 In particular, you can also combine alternative blocks with optional blocks
 (see below) in order to optionally accept only one of the alternatives, but not
 multiple.
@@ -308,6 +308,38 @@ Note that it is highly recommended to always make sure any options that accept
 values are near the left side of your route expression.
 This is needed in order to make sure space-separated values are consumed as
 option values instead of being misinterpreted as keywords or arguments.
+
+You can limit the values for short and long options to a given preset like this:
+
+```php
+$router->add('[--ask=(yes|no)] [-l[=0]] user purge', function (array $args) {
+    assert(!isset($args['ask']) || $args['sort'] === 'yes' || $args['sort'] === 'no');
+    assert(!isset($args['l']) || $args['l'] === '0');
+});
+// matches: user purge
+// matches: user purge --ask=yes
+// matches: user purge --ask=no
+// matches: user purge -l
+// matches: user purge -l=0
+// matches: user purge -l 0
+// matches: user purge -l0
+// matches: user purge -l --ask=no
+// does not match: user purge --ask (missing option value)
+// does not match: user purge --ask=maybe (invalid option value)
+// does not match: user purge -l4 (invalid option value)
+```
+
+As seen in the example, option values can be restricted to a given preset of
+values by using any of the above tokens.
+Technically, it's valid to use any of the above tokens to restrict the option
+values.
+In practice, this is mostly used for static keyword tokens or alternative groups
+thereof.
+It's recommended to always use parentheses for optional groups, however they're
+not strictly required within options with optional values.
+This also helps making it more obvious `[--ask=(yes|no)]` would accept either
+option value, while the (less useful) expression `[--ask=yes | no]` would
+accept either the option `--ask=yes` or the static keyword `no`.
 
 #### remove()
 

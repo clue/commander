@@ -12,12 +12,4 @@ class OptionTokenTest extends PHPUnit_Framework_TestCase
     {
         new OptionToken('--name', null, true);
     }
-
-    /**
-     * @expectedException InvalidArgumentException
-     */
-    public function testUnableToCreateOptionWithWordPlaceholderToken()
-    {
-        new OptionToken('--name', new WordToken('test'));
-    }
 }

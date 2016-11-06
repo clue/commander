@@ -22,10 +22,6 @@ class OptionToken implements TokenInterface
             throw new InvalidArgumentException('Long option must consist of at least two characters');
         }
 
-        if ($placeholder !== null && !$placeholder instanceof ArgumentToken) {
-            throw new InvalidArgumentException('Option placeholder must be unset or an argument');
-        }
-
         if ($required && $placeholder === null) {
             throw new InvalidArgumentException('Requires a placeholder when option value is marked required');
         }
@@ -55,10 +51,15 @@ class OptionToken implements TokenInterface
                     }
                 } else {
                     // we found a value after the key in the previous iteration
-                    unset($input[$foundName]);
-                    unset($input[$key]);
-                    $output[ltrim($this->name, '-')] = $value;
-                    return true;
+
+                    if (!$this->validate($value)) {
+                        $foundName = null;
+                    } else {
+                        unset($input[$foundName]);
+                        unset($input[$key]);
+                        $output[ltrim($this->name, '-')] = $value;
+                        return true;
+                    }
                 }
             }
 
@@ -88,6 +89,10 @@ class OptionToken implements TokenInterface
                     continue;
                 }
 
+                if (!$this->validate($value)) {
+                    continue;
+                }
+
                 unset($input[$key]);
                 $output[ltrim($this->name, '-')] = $value;
                 return true;
@@ -107,17 +112,32 @@ class OptionToken implements TokenInterface
         return false;
     }
 
+    private function validate($value)
+    {
+        if ($this->placeholder !== null) {
+            $input = array($value);
+            $output = array();
+
+            if (!$this->placeholder->matches($input, $output)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
     public function __toString()
     {
         $ret = $this->name;
 
         if ($this->placeholder !== null) {
-            if (!$this->required) {
-                $ret .= '[';
-            }
-            $ret .= '=' . $this->placeholder;
-            if (!$this->required) {
-                $ret .= ']';
+            if ($this->required) {
+                if ($this->placeholder instanceof SentenceToken || $this->placeholder instanceof AlternativeToken || $this->placeholder instanceof EllipseToken) {
+                    $ret .= '=(' . $this->placeholder . ')';
+                } else {
+                    $ret .= '=' . $this->placeholder;
+                }
+            } else {
+                $ret .= '[=' . $this->placeholder . ']';
             }
         }
 
