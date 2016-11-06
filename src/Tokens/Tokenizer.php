@@ -78,14 +78,26 @@ class Tokenizer
     private function readToken($input, &$i)
     {
         if ($input[$i] === '<') {
-            return $this->readArgument($input, $i);
+            $token = $this->readArgument($input, $i);
         } elseif ($input[$i] === '[') {
-            return $this->readOptionalBlock($input, $i);
+            $token = $this->readOptionalBlock($input, $i);
         } elseif ($input[$i] === '(') {
-            return $this->readParenthesesBlock($input, $i);
+            $token = $this->readParenthesesBlock($input, $i);
         } else {
-            return $this->readWord($input, $i);
+            $token = $this->readWord($input, $i);
         }
+
+        // skip trailing whitespace to check for ellipses
+        $start = $i;
+        $this->consumeOptionalWhitespace($input, $start);
+
+        // found `...` after some optional whitespace
+        if (substr($input, $start, 3) === '...') {
+            $token = new EllipseToken($token);
+            $i = $start + 3;
+        }
+
+        return $token;
     }
 
     private function readArgument($input, &$i)
@@ -100,19 +112,8 @@ class Tokenizer
 
         // everything between `<` and `>` is the argument name
         $word = substr($input, $start + 1, $i++ - $start - 1);
-        $token = new ArgumentToken(trim($word));
 
-        // skip any whitespace characters between end of block and `...`
-        $start = $i;
-        $this->consumeOptionalWhitespace($input, $start);
-
-        // followed by `...` means that any number of arguments are accepted
-        if (substr($input, $start, 3) === '...') {
-            $token = new EllipseToken($token);
-            $i = $start + 3;
-        }
-
-        return $token;
+        return new ArgumentToken(trim($word));
     }
 
     private function readOptionalBlock($input, &$i)
@@ -244,16 +245,6 @@ class Tokenizer
             $token = new OptionToken($word, $placeholder, $required);
         } else{
             $token = new WordToken($word);
-        }
-
-        // skip trailing whitespace to check for ellipses
-        $start = $i;
-        $this->consumeOptionalWhitespace($input, $start);
-
-        // found `...` after some optional whitespace
-        if (substr($input, $start, 3) === '...') {
-            $token = new EllipseToken($token);
-            $i = $start + 3;
         }
 
         return $token;

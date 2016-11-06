@@ -219,9 +219,6 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'ellipse after alternative group' => array(
                 '(a | b)...'
             ),
-            'ellipse after word in parentheses' => array(
-                '(a)...'
-            ),
         );
     }
 
@@ -292,6 +289,13 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
         $this->assertEquals('hello', $tokens);
     }
 
+    public function testParenthesesForWordWithParenthesesIsOptional()
+    {
+        $tokens = $this->tokenizer->createToken('(((hello))...)');
+
+        $this->assertEquals('hello...', $tokens);
+    }
+
     public function testParenthesesAroundWordInSentenceIsOptional()
     {
         $tokens = $this->tokenizer->createToken('a (b) c');
@@ -324,8 +328,6 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
 
     public function testOptionWithRequiredWordEllipsesWithOptionalParentheses()
     {
-        $this->markTestIncomplete();
-
         $tokens = $this->tokenizer->createToken('hello (--date=(now))...');
 
         $this->assertEquals('hello --date=now...', $tokens);
