@@ -187,7 +187,7 @@ a filtered value.
 The following predefined filters are currently available:
 
 * `int` accepts any positive or negative integer value, such as `10` or `-4`
-* `uint` accepts and positive (unsigned) integer value, such `10` or `0`
+* `uint` accepts any positive (unsigned) integer value, such `10` or `0`
 * `float` accepts any positive or negative float value, such as `1.5` or `-2.3`
 * `ufloat` accepts any positive (unsigned) float value, such as `1.5` or `0`
 * `bool` accepts any boolean value, such as `yes/true/1` or `no/false/0`
@@ -344,7 +344,7 @@ option values instead of being misinterpreted as keywords or arguments.
 You can limit the values for short and long options to a given preset like this:
 
 ```php
-$router->add('[--ask=(yes|no)] [-l[=0]] user purge', function (array $args) {
+$router->add('[--ask=(yes | no)] [-l[=0]] user purge', function (array $args) {
     assert(!isset($args['ask']) || $args['sort'] === 'yes' || $args['sort'] === 'no');
     assert(!isset($args['l']) || $args['l'] === '0');
 });
@@ -369,7 +369,7 @@ In practice, this is mostly used for static keyword tokens or alternative groups
 thereof.
 It's recommended to always use parentheses for optional groups, however they're
 not strictly required within options with optional values.
-This also helps making it more obvious `[--ask=(yes|no)]` would accept either
+This also helps making it more obvious `[--ask=(yes | no)]` would accept either
 option value, while the (less useful) expression `[--ask=yes | no]` would
 accept either the option `--ask=yes` or the static keyword `no`.
 
