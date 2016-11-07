@@ -2,12 +2,17 @@
 
 namespace Clue\Commander\Tokens;
 
+use InvalidArgumentException;
+
 class ArgumentToken implements TokenInterface
 {
     private $name;
 
     public function __construct($name)
     {
+        if (!isset($name[0])) {
+            throw new InvalidArgumentException('Empty argument name');
+        }
         $this->name = $name;
     }
 

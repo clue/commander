@@ -75,17 +75,29 @@ class Tokenizer
         for (;isset($input[$i]) && in_array($input[$i], $this->ws); ++$i);
     }
 
-    private function readToken($input, &$i)
+    private function readToken($input, &$i, $readEllipses = true)
     {
         if ($input[$i] === '<') {
-            return $this->readArgument($input, $i);
+            $token = $this->readArgument($input, $i);
         } elseif ($input[$i] === '[') {
-            return $this->readOptionalBlock($input, $i);
+            $token = $this->readOptionalBlock($input, $i);
         } elseif ($input[$i] === '(') {
-            return $this->readParenthesesBlock($input, $i);
+            $token = $this->readParenthesesBlock($input, $i);
         } else {
-            return $this->readWord($input, $i);
+            $token = $this->readWord($input, $i);
         }
+
+        // skip trailing whitespace to check for ellipses
+        $start = $i;
+        $this->consumeOptionalWhitespace($input, $start);
+
+        // found `...` after some optional whitespace
+        if ($readEllipses && substr($input, $start, 3) === '...') {
+            $token = new EllipseToken($token);
+            $i = $start + 3;
+        }
+
+        return $token;
     }
 
     private function readArgument($input, &$i)
@@ -100,19 +112,8 @@ class Tokenizer
 
         // everything between `<` and `>` is the argument name
         $word = substr($input, $start + 1, $i++ - $start - 1);
-        $token = new ArgumentToken(trim($word));
 
-        // skip any whitespace characters between end of block and `...`
-        $start = $i;
-        $this->consumeOptionalWhitespace($input, $start);
-
-        // followed by `...` means that any number of arguments are accepted
-        if (substr($input, $start, 3) === '...') {
-            $token = new EllipseToken($token);
-            $i = $start + 3;
-        }
-
-        return $token;
+        return new ArgumentToken(trim($word));
     }
 
     private function readOptionalBlock($input, &$i)
@@ -189,54 +190,63 @@ class Tokenizer
 
     private function readWord($input, &$i)
     {
-        // static word token, buffer until next whitespace or closing square bracket
-        preg_match('/(?:[^\[\]\(\)\|\s]+|\[[^\]]+\])+/', $input, $matches, 0, $i);
+        // static word token, buffer until next whitespace or special char
+        preg_match('/[^\[\]\(\)\|\=\.\s]+/', $input, $matches, 0, $i);
 
-        $word = $matches[0];
+        $word = isset($matches[0]) ? $matches[0] : '';
         $i += strlen($word);
 
-        $ellipse = false;
-        // ends with `...` means that any number of arguments are accepted
-        if (substr($word, -3) === '...') {
-            $word = substr($word, 0, -3);
-            $ellipse = true;
-        } else {
+        if (isset($word[0]) && $word[0] === '-') {
+            // starts with a `-` => this is an option
+
+            // skip optional whitespace after option name in order to search for option value
             $start = $i;
             $this->consumeOptionalWhitespace($input, $start);
 
-            // found `...` after some optional whitespace
-            if (substr($input, $start, 3) === '...') {
-                $i = $start + 3;
-                $ellipse = true;
-            }
-        }
+            if (isset($input[$start]) && $input[$start] === '[') {
+                // opening bracket found (possibly an optional option value)
 
-        if (isset($word[0]) && $word[0] === '-') {
-            $required = true;
-            $placeholder = null;
+                // skip optional whitespace after bracket in order to search for `=`
+                $start++;
+                $this->consumeOptionalWhitespace($input, $start);
 
-            // placeholder value is optional => remove square brackets
-            if (substr($word, -1) === ']') {
-                $required = false;
-                $word = trim(str_replace(array('[', ']'), '', $word));
-            }
+                if (isset($input[$start]) && $input[$start] === '=') {
+                    // found `[=` for optional value, read placeholder token and expect closing bracket
+                    // placeholder may contain alternatives because the surrounded brackets make this unambiguous
+                    $i = $start + 1;
+                    $placeholder = $this->readAlternativeSentenceOrSingle($input, $i);
 
-            // value is present => remove placeholder name from word
-            $pos = strpos($word, '=');
-            if ($pos !== false) {
-                $placeholder = trim(substr($word, $pos + 1), '<>');
-                $word = substr($word, 0, $pos);
+                    if (!isset($input[$i]) || $input[$i] !== ']') {
+                        throw new InvalidArgumentException('Missing end of optional option value');
+                    }
+
+                    // skip trailing closing bracket
+                    $i++;
+                    $required = false;
+                } else {
+                    // ignore opening bracket because it is not part of an option value
+                    $required = false;
+                    $placeholder = null;
+                }
+            } elseif (isset($input[$start]) && $input[$start] === '=') {
+                // found `=` for required value, skip whitespace and read until end of token
+                $i = $start + 1;
+                $this->consumeOptionalWhitespace($input, $i);
+
+                // placeholder may only contain single token because it's terminated at ambiguous whitespace
+                // we explicitly skip consuming the ellipses as part of the option value here
+                // trailing ellipses should be part of the whole option, not only its value
+                $placeholder = $this->readToken($input, $i, false);
+                $required = true;
             } else {
+                // ignore unknown character at cursor position because it is not part of this option value
                 $required = false;
+                $placeholder = null;
             }
 
             $token = new OptionToken($word, $placeholder, $required);
         } else{
             $token = new WordToken($word);
-        }
-
-        if ($ellipse) {
-            $token = new EllipseToken($token);
         }
 
         return $token;

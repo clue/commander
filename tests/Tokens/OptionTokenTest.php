@@ -1,6 +1,7 @@
 <?php
 
 use Clue\Commander\Tokens\OptionToken;
+use Clue\Commander\Tokens\WordToken;
 
 class OptionTokenTest extends PHPUnit_Framework_TestCase
 {
