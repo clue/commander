@@ -161,9 +161,9 @@ $router->add('user add <name>', function (array $args) {
 
 Note that arguments that start with a dash (`-`) are not simply accepted in the
 user input, because they may be confused with (optional) options (see below).
-If users wish to process arguments that start with a dash (`-`), they may use
-a double dash separator (`--`), as everything after this separator will be
-processed as-is.
+If users wish to process arguments that start with a dash (`-`), they either
+have to use filters (see below) or may use a double dash separator (`--`),
+as everything after this separator will be processed as-is.
 See also the last examples above that demonstrate this behavior.
 
 You can use one the predefined filters to limit what values are accepted like this:
@@ -175,12 +175,15 @@ $router->add('user ban <id:int> <force:bool>', function (array $args) {
 });
 // matches: user ban 10 true
 // matches: user ban 10 0
-// matches: user ban -- -10 true
+// matches: user ban -10 yes
+// matches: user ban -- -10 no
 // does not match: user ban 10 (missing required argument)
 // does not match: user ban hello true (invalid value does not validate)
 ```
 
 Note that the filters also return the value casted to the correct data type.
+Also note how using the double dash separator (`--`) is optional when matching
+a filtered value.
 The following predefined filters are currently available:
 
 * `int` accepts any positive or negative integer value, such as `10` or `-4`
@@ -311,6 +314,9 @@ $router->add('[--sort[=<param>]] [-i=<start:int>] user list', function (array $a
 // matches: user list -i=10
 // matches: user list -i 10
 // matches: user list -i10
+// matches: user list -i=-10
+// matches: user list -i -10
+// matches: user list -i-10
 // matches: user -i=10 list
 // matches: --sort -- user list
 // matches: --sort size user list
@@ -318,6 +324,8 @@ $router->add('[--sort[=<param>]] [-i=<start:int>] user list', function (array $a
 // does not match: user list -i (missing option value)
 // does not match: user list -i --sort (missing option value)
 // does not match: user list -i=a (invalid value does not validate)
+// does not match: --sort user list (user will be interpreted as option value)
+// does not match: user list --sort -2 (value looks like an option)
 ```
 
 As seen in the example, option values in the `$args` array will be given as

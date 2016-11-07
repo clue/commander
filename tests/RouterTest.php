@@ -44,6 +44,11 @@ class RouterTest extends PHPUnit_Framework_TestCase
                 array('hello', '10'),
                 array('name' => 10)
             ),
+            'word with argument filtered negative int' => array(
+                'hello <name:int>',
+                array('hello', '-10'),
+                array('name' => -10)
+            ),
             'word with argument filtered float' => array(
                 'hello <name:float>',
                 array('hello', '10.1'),
@@ -186,15 +191,20 @@ class RouterTest extends PHPUnit_Framework_TestCase
                 array('hello', '--name', '--yes'),
                 array('name' => false, 'yes' => false),
             ),
-            'word with required long option with required filtered value' => array(
+            'word with required long option with required filtered int value' => array(
                 'hello --name=<n:int>',
                 array('hello', '--name=10'),
                 array('name' => 10)
             ),
-            'word with required long option with required filtered value separated' => array(
+            'word with required long option with required filtered int value separated' => array(
                 'hello --name=<n:int>',
                 array('hello', '--name', '10'),
                 array('name' => 10)
+            ),
+            'word with required long option with required filtered negative int value separated' => array(
+                'hello --name=<n:int>',
+                array('hello', '--name', '-10'),
+                array('name' => -10)
             ),
             'word with required long option with required alternative value' => array(
                 'hello --name=(a | b)',
@@ -210,6 +220,16 @@ class RouterTest extends PHPUnit_Framework_TestCase
                 'hello --name[=a | b] [c]',
                 array('hello', '--name', 'c'),
                 array('name' => false),
+            ),
+            'word with required long option with required alternative negative value' => array(
+                'hello --name=(-1 | -2)',
+                array('hello', '--name=-2'),
+                array('name' => '-2'),
+            ),
+            'word with required long option with required alternative negative value separated' => array(
+                'hello --name=(-1 | -2)',
+                array('hello', '--name', '-2'),
+                array('name' => '-2'),
             ),
             'word with required long option with required alternative filtered int value' => array(
                 'hello --name=(<n:int> | now)',

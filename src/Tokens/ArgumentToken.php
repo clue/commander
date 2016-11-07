@@ -18,21 +18,20 @@ class ArgumentToken implements TokenInterface
         $this->filter = $filter;
 
         $demo = '';
-        $this->validate($demo);
+        $this->validate($demo, false);
     }
 
     public function matches(array &$input, array &$output)
     {
         $dd = false;
         foreach ($input as $key => $value) {
-            if ($value === '' || $value[0] !== '-' || $dd) {
-                if ($this->validate($value)) {
-                    unset($input[$key]);
-                    $output[$this->name] = $value;
-                    return true;
-                } else {
-                    break;
-                }
+            if ($this->validate($value, $dd)) {
+                unset($input[$key]);
+                $output[$this->name] = $value;
+                return true;
+            } elseif ($value === '' || $value[0] !== '-' || $dd) {
+                // this not an option => it should have matched => fail
+                break;
             } elseif ($value === '--') {
                 // found a double dash => following must be an argument
                 $dd = true;
@@ -53,10 +52,11 @@ class ArgumentToken implements TokenInterface
         return $ret;
     }
 
-    private function validate(&$value)
+    private function validate(&$value, $dd)
     {
         if ($this->filter === null) {
-            return true;
+            // value must not start with a dash (`-`), unless it's behind a double dash (`--`)
+            return ($dd || $value === '' || $value[0] !== '-');
         } elseif ($this->filter === 'int' || $this->filter === 'uint') {
             $ret = filter_var($value, FILTER_VALIDATE_INT);
             if ($ret === false || ($this->filter === 'uint' && $ret < 0)) {
