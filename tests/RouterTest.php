@@ -39,6 +39,21 @@ class RouterTest extends PHPUnit_Framework_TestCase
                 array('hello', 'clue'),
                 array('name' => 'clue')
             ),
+            'word with argument filtered int' => array(
+                'hello <name:int>',
+                array('hello', '10'),
+                array('name' => 10)
+            ),
+            'word with argument filtered float' => array(
+                'hello <name:float>',
+                array('hello', '10.1'),
+                array('name' => 10.1)
+            ),
+            'word with argument filtered bool' => array(
+                'hello <name:bool>',
+                array('hello', 'yes'),
+                array('name' => true)
+            ),
             'word with optional argument' => array(
                 'hello [<name>]',
                 array('hello', 'clue'),
@@ -171,6 +186,16 @@ class RouterTest extends PHPUnit_Framework_TestCase
                 array('hello', '--name', '--yes'),
                 array('name' => false, 'yes' => false),
             ),
+            'word with required long option with required filtered value' => array(
+                'hello --name=<n:int>',
+                array('hello', '--name=10'),
+                array('name' => 10)
+            ),
+            'word with required long option with required filtered value separated' => array(
+                'hello --name=<n:int>',
+                array('hello', '--name', '10'),
+                array('name' => 10)
+            ),
             'word with required long option with required alternative value' => array(
                 'hello --name=(a | b)',
                 array('hello', '--name=a'),
@@ -180,6 +205,21 @@ class RouterTest extends PHPUnit_Framework_TestCase
                 'hello --name=(a | b)',
                 array('hello', '--name', 'b'),
                 array('name' => 'b'),
+            ),
+            'word with optional long option without required alternative with value keyword' => array(
+                'hello --name[=a | b] [c]',
+                array('hello', '--name', 'c'),
+                array('name' => false),
+            ),
+            'word with required long option with required alternative filtered int value' => array(
+                'hello --name=(<n:int> | now)',
+                array('hello', '--name=10'),
+                array('name' => 10),
+            ),
+            'word with required long option with required alternative not filtered value' => array(
+                'hello --name=(<n:int> | now)',
+                array('hello', '--name=now'),
+                array('name' => 'now'),
             ),
             'word with required long option with required keyword ellipses' => array(
                 'hello --ask=no...',
@@ -244,7 +284,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
         $router->handleArgs($args);
 
-        $this->assertEquals($expected, $invoked);
+        $this->assertSame($expected, $invoked);
     }
 
     public function provideNonMatchingRoutes()
@@ -265,6 +305,14 @@ class RouterTest extends PHPUnit_Framework_TestCase
             'argument missing' => array(
                 'hello <name>',
                 array('hello')
+            ),
+            'argument not bool filter' => array(
+                'hello <try:bool>',
+                array('hello', 'test')
+            ),
+            'argument not ufloat filter' => array(
+                'hello <try:ufloat>',
+                array('hello', 'nope')
             ),
             'without ellipse arguments' => array(
                 'hello <names>...',
@@ -350,6 +398,14 @@ class RouterTest extends PHPUnit_Framework_TestCase
             'with required long option with value separated not in alternative group' => array(
                 'hello --name=(a | b)',
                 array('hello', '--name', 'c'),
+            ),
+            'with required long option with value not in int filter' => array(
+                'hello --name=<n:int>',
+                array('hello', '--name=a')
+            ),
+            'with required long option with value not in int filter separated' => array(
+                'hello --name=<n:int>',
+                array('hello', '--name', 'a')
             ),
         );
     }

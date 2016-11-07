@@ -3,16 +3,16 @@
 require __DIR__ . '/../vendor/autoload.php';
 
 $router = new Clue\Commander\Router();
-$router->add('exit [<code>]', function (array $args) {
-    $code = isset($args['code']) ? (int)$args['code'] : 0;
+$router->add('exit [<code:uint>]', function (array $args) {
+    $code = isset($args['code']) ? $args['code'] : 0;
 
-    if ($code < 0 || $code > 255) {
+    if ($code > 255) {
         throw new \InvalidArgumentException('Invalid exit code given');
     }
 
     exit($code);
 });
-$router->add('sleep <seconds>', function (array $args) {
+$router->add('sleep <seconds:uint>', function (array $args) {
     sleep($args['seconds']);
 });
 $router->add('echo <words>...', function (array $args) {

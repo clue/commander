@@ -53,7 +53,13 @@ class OptionToken implements TokenInterface
                     // we found a value after the key in the previous iteration
 
                     if (!$this->validate($value)) {
-                        $foundName = null;
+                        if ($this->required) {
+                            // option requires a valid value => skip and keep searching
+                            $foundName = null;
+                        } else {
+                            // option does not require a valid value => break in order to use `false`
+                            break;
+                        }
                     } else {
                         unset($input[$foundName]);
                         unset($input[$key]);
@@ -112,19 +118,6 @@ class OptionToken implements TokenInterface
         return false;
     }
 
-    private function validate($value)
-    {
-        if ($this->placeholder !== null) {
-            $input = array($value);
-            $output = array();
-
-            if (!$this->placeholder->matches($input, $output)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public function __toString()
     {
         $ret = $this->name;
@@ -142,5 +135,24 @@ class OptionToken implements TokenInterface
         }
 
         return $ret;
+    }
+
+    private function validate(&$value)
+    {
+        if ($this->placeholder !== null) {
+            $input = array($value);
+            $output = array();
+
+            // filter the value through the placeholder
+            if (!$this->placeholder->matches($input, $output)) {
+                return false;
+            }
+
+            // if the placeholder returned a filtered value, use this one
+            if ($output) {
+                $value = reset($output);
+            }
+        }
+        return true;
     }
 }

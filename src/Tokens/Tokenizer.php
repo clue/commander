@@ -3,6 +3,7 @@
 namespace Clue\Commander\Tokens;
 
 use InvalidArgumentException;
+use Clue\Commander\Filter;
 
 /**
  * The Tokenizer is responsible for breaking down the route expression into an internal syntax tree
@@ -113,7 +114,11 @@ class Tokenizer
         // everything between `<` and `>` is the argument name
         $word = substr($input, $start + 1, $i++ - $start - 1);
 
-        return new ArgumentToken(trim($word));
+        $parts = explode(':', $word, 2);
+        $word = trim($parts[0]);
+        $filter = isset($parts[1]) ? trim($parts[1]) : null;
+
+        return new ArgumentToken($word, $filter);
     }
 
     private function readOptionalBlock($input, &$i)

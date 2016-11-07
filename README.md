@@ -35,10 +35,10 @@ arguments passed to this program:
 
 ```php
 $router = new Clue\Commander\Router();
-$router->add('exit [<code>]', function (array $args) {
-    exit(isset($args['code']) ? (int)$args['code'] : 0);
+$router->add('exit [<code:uint>]', function (array $args) {
+    exit(isset($args['code']) ? $args['code'] : 0);
 });
-$router->add('sleep <seconds>', function (array $args) {
+$router->add('sleep <seconds:uint>', function (array $args) {
     sleep($args['seconds']);
 });
 $router->add('echo <words>...', function (array $args) {
@@ -166,6 +166,29 @@ a double dash separator (`--`), as everything after this separator will be
 processed as-is.
 See also the last examples above that demonstrate this behavior.
 
+You can use one the predefined filters to limit what values are accepted like this:
+
+```php
+$router->add('user ban <id:int> <force:bool>', function (array $args) {
+    assert(is_int($args['id']));
+    assert(is_bool($args['force']));
+});
+// matches: user ban 10 true
+// matches: user ban 10 0
+// matches: user ban -- -10 true
+// does not match: user ban 10 (missing required argument)
+// does not match: user ban hello true (invalid value does not validate)
+```
+
+Note that the filters also return the value casted to the correct data type.
+The following predefined filters are currently available:
+
+* `int` accepts any positive or negative integer value, such as `10` or `-4`
+* `uint` accepts and positive (unsigned) integer value, such `10` or `0`
+* `float` accepts any positive or negative float value, such as `1.5` or `-2.3`
+* `ufloat` accepts any positive (unsigned) float value, such as `1.5` or `0`
+* `bool` accepts any boolean value, such as `yes/true/1` or `no/false/0`
+
 You can mark arguments as optional by enclosing them in square brackets like this:
 
 ```php
@@ -277,9 +300,9 @@ option anywhere in the user input, but never both at the same time.
 You can optionally accept or require values for short and long options like this:
 
 ```php
-$router->add('[--sort[=<param>]] [-i=<start>] user list', function (array $args) {
+$router->add('[--sort[=<param>]] [-i=<start:int>] user list', function (array $args) {
     assert(!isset($args['sort']) || $args['sort'] === false || is_string($args['sort']));
-    assert(!isset($args['i']) || is_string($args['i']));
+    assert(!isset($args['i']) || is_int($args['i']));
 });
 // matches: user list
 // matches: user list --sort
@@ -294,10 +317,11 @@ $router->add('[--sort[=<param>]] [-i=<start>] user list', function (array $args)
 // matches: user list --sort -i=10
 // does not match: user list -i (missing option value)
 // does not match: user list -i --sort (missing option value)
+// does not match: user list -i=a (invalid value does not validate)
 ```
 
 As seen in the example, option values in the `$args` array will be given as
-strings if passed in the user input.
+strings or their filtered and casted value if passed in the user input.
 Both short and long options can accept values with the recommended equation
 symbol syntax (`-i=10` and `--sort=size`  respectively) in the user input.
 Both short and long options can also accept values with the common space-separated
