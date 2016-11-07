@@ -1,5 +1,16 @@
 # Changelog
 
+## 1.2.0 (2016-11-07)
+
+* Feature: Add support for predefined filters to limit accepted values and avoid requiring double dash separator
+  (#19 by @clue)
+
+* Feature: Support preset option values, option values now accept any tokens
+  (#17 by @clue)
+
+* Feature: Unify handling ellipses after any token and whitespace around option values
+  (#17 by @clue)
+
 ## 1.1.0 (2016-11-06)
 
 * Feature: Support alternative groups and optional parentheses
