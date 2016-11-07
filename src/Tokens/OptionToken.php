@@ -37,29 +37,22 @@ class OptionToken implements TokenInterface
         $foundName = null;
 
         foreach ($input as $key => $value) {
-            // already found a match with no value append in previous iteration
             if ($foundName !== null) {
-                if (substr($value, 0, 1) === '-') {
-                    // we expected a value but actually found another option
+                // already found a match with no value appended in previous iteration
 
-                    if ($this->required) {
-                        // option requires a value => skip and keep searching
-                        $foundName = null;
-                    } else {
-                        // option does not require a value, break in order to use `false`
-                        break;
-                    }
+                if ($this->validate($value)) {
+                    // found a valid value after name in previous iteration
+                    unset($input[$foundName]);
+                    unset($input[$key]);
+                    $output[ltrim($this->name, '-')] = $value;
+                    return true;
+                } elseif (!$this->required) {
+                    // option does not require a valid value => break in order to use `false`
+                    break;
                 } else {
-                    // we found a value after the key in the previous iteration
-
-                    if (!$this->validate($value)) {
-                        $foundName = null;
-                    } else {
-                        unset($input[$foundName]);
-                        unset($input[$key]);
-                        $output[ltrim($this->name, '-')] = $value;
-                        return true;
-                    }
+                    // we expected a value but actually found another option / invalid value
+                    // skip and keep searching
+                    $foundName = null;
                 }
             }
 
@@ -112,19 +105,6 @@ class OptionToken implements TokenInterface
         return false;
     }
 
-    private function validate($value)
-    {
-        if ($this->placeholder !== null) {
-            $input = array($value);
-            $output = array();
-
-            if (!$this->placeholder->matches($input, $output)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
     public function __toString()
     {
         $ret = $this->name;
@@ -142,5 +122,30 @@ class OptionToken implements TokenInterface
         }
 
         return $ret;
+    }
+
+    private function validate(&$value)
+    {
+        if ($this->placeholder !== null) {
+            $input = array($value);
+            $output = array();
+
+            // filter the value through the placeholder
+            if (!$this->placeholder->matches($input, $output)) {
+                return false;
+            }
+
+            // if the placeholder returned a filtered value, use this one
+            if ($output) {
+                $temp = reset($output);
+
+                // if the value parsed as an option, its value will be `false`
+                // rather keep name in that case, otherwise use parsed value
+                if ($temp !== false) {
+                    $value = $temp;
+                }
+            }
+        }
+        return true;
     }
 }

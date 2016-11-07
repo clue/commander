@@ -30,6 +30,9 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'word with multiple arguments' => array(
                 'hello <firstname> <lastname>'
             ),
+            'word with argument filter' => array(
+                'hello <id:int>'
+            ),
 
             'word with optional word' => array(
                 'hello [world]'
@@ -64,6 +67,9 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             ),
             'word with required short option with optional value' => array(
                 'hello -f[=<date>]'
+            ),
+            'word with required long option with required value with filter' => array(
+                'hello --number=<number:int>'
             ),
             'word with required long option with required word' => array(
                 'hello --date=now'
@@ -160,6 +166,12 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             ),
             'closing optional block without opening' => array(
                 'test]'
+            ),
+            'argument with unknown filter' => array(
+                '<name:unknown>'
+            ),
+            'long option with required value with unknown filter' => array(
+                '--demo=<name:unknown>'
             ),
 
             'empty sentence in optional block' => array(
