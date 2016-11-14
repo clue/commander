@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.2.1 (2016-11-14)
+
+* Fix: Use casted filter value for options with boolean values
+  (#20 by @clue)
+
 ## 1.2.0 (2016-11-07)
 
 * Feature: Add support for predefined filters to limit accepted values and avoid requiring double dash separator
