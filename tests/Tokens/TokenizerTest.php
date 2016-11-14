@@ -193,13 +193,16 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             'option name is missing' => array(
                 '-'
             ),
+            'long option with no value' => array(
+                '--date=<>'
+            ),
             'long option with empty placeholder name' => array(
                 '--date=<>'
             ),
-            'option with incomplete placeholder' => array(
+            'long option with incomplete placeholder' => array(
                 '--date=<a'
             ),
-            'option with incomplete optional placeholder' => array(
+            'long option with incomplete optional placeholder' => array(
                 '--date[=<a>'
             ),
 
