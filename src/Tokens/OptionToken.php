@@ -141,7 +141,7 @@ class OptionToken implements TokenInterface
 
                 // if the value parsed as an option, its value will be `false`
                 // rather keep name in that case, otherwise use parsed value
-                if ($temp !== false) {
+                if ($temp !== false || $value === '' || $value[0] !== '-') {
                     $value = $temp;
                 }
             }

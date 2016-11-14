@@ -206,6 +206,16 @@ class RouterTest extends PHPUnit_Framework_TestCase
                 array('hello', '--name', '-10'),
                 array('name' => -10)
             ),
+            'word with required long option with required filtered bool value' => array(
+                'hello --force=<n:bool>',
+                array('hello', '--force=no'),
+                array('force' => false)
+            ),
+            'word with required long option with required filtered bool value separated' => array(
+                'hello --force=<n:bool>',
+                array('hello', '--force', 'false'),
+                array('force' => false)
+            ),
             'word with required long option with required alternative value' => array(
                 'hello --name=(a | b)',
                 array('hello', '--name=a'),
