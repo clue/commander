@@ -541,6 +541,24 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertNull($ret);
     }
 
+    public function testExecArgvWithoutArgvActsLikeEmptyArgv()
+    {
+        $old = $_SERVER;
+        $_SERVER = array();
+
+        $router = new Router();
+
+        $invoked = false;
+        $router->add('', function () use (&$invoked) {
+            $invoked = true;
+        });
+
+        $router->execArgv();
+        $this->assertTrue($invoked);
+
+        $_SERVER = $old;
+    }
+
     /**
      * @expectedException Clue\Commander\NoRouteFoundException
      */

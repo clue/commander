@@ -145,7 +145,7 @@ class Router
     public function handleArgv(array $argv = null)
     {
         if ($argv === null) {
-            $argv = $_SERVER['argv'];
+            $argv = isset($_SERVER['argv']) ? $_SERVER['argv'] : array();
         }
         array_shift($argv);
 
