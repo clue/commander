@@ -1,5 +1,13 @@
 # Changelog
 
+## 1.2.2 (2017-06-29)
+
+* Fix: Assume argv to be empty if not present (non-CLI SAPI mode)
+  (#23 by @clue)
+
+* Improve test suite by adding PHPUnit to require-dev and ignoring HHVM build errors for now.
+  (#21 and #22 by @clue)
+
 ## 1.2.1 (2016-11-14)
 
 * Fix: Use casted filter value for options with boolean values
