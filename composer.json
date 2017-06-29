@@ -17,6 +17,7 @@
         "php": ">=5.3"
     },
     "require-dev": {
-        "clue/arguments": "^1.0"
+        "clue/arguments": "^1.0",
+        "phpunit/phpunit": "^4.8"
     }
 }
