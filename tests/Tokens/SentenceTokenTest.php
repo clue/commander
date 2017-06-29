@@ -8,8 +8,8 @@ class SentenceTokenTest extends PHPUnit_Framework_TestCase
     public function testSupportsAnyTwoTokens()
     {
         new SentenceToken(array(
-            $this->getMock('Clue\Commander\Tokens\TokenInterface'),
-            $this->getMock('Clue\Commander\Tokens\TokenInterface'),
+            $this->getMockBuilder('Clue\Commander\Tokens\TokenInterface')->getMock(),
+            $this->getMockBuilder('Clue\Commander\Tokens\TokenInterface')->getMock(),
         ));
     }
 
