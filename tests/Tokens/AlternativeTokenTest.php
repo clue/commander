@@ -9,8 +9,8 @@ class AlternativeTokenTest extends PHPUnit_Framework_TestCase
     public function testSupportsAnyTwoTokens()
     {
         new AlternativeToken(array(
-            $this->getMock('Clue\Commander\Tokens\TokenInterface'),
-            $this->getMock('Clue\Commander\Tokens\TokenInterface'),
+            $this->getMockBuilder('Clue\Commander\Tokens\TokenInterface')->getMock(),
+            $this->getMockBuilder('Clue\Commander\Tokens\TokenInterface')->getMock(),
         ));
     }
 
@@ -35,7 +35,7 @@ class AlternativeTokenTest extends PHPUnit_Framework_TestCase
 
     public function testDoesNotSupportOptional()
     {
-        $token = $this->getMock('Clue\Commander\Tokens\TokenInterface');
+        $token = $this->getMockBuilder('Clue\Commander\Tokens\TokenInterface')->getMock();
         $tokens = array(
             $token,
             new OptionalToken($token)
