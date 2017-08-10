@@ -1,6 +1,7 @@
 <?php
 
 use Clue\Commander\Router;
+use Clue\Commander\Tokens\Tokenizer;
 
 class RouterTest extends PHPUnit_Framework_TestCase
 {
@@ -452,6 +453,25 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router->add($route, 'var_dump');
 
         $router->handleArgs($args);
+    }
+
+    public function testHandleRouteWithCustomFilterModifier()
+    {
+        $tokenizer = new Tokenizer();
+        $tokenizer->addFilter('lower', function (&$value) {
+            $value = strtolower($value);
+            return true;
+        });
+
+        $called = null;
+        $router = new Router($tokenizer);
+        $router->add('add <name:lower>', function ($args) use (&$called) {
+            $called = $args;
+        });
+
+        $router->handleArgs(array('add', 'TeSt'));
+
+        $this->assertEquals(array('name' => 'test'), $called);
     }
 
     public function testAddRouteCanBeRemoved()
