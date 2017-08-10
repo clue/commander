@@ -9,6 +9,9 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
     public function setUp()
     {
         $this->tokenizer = new Tokenizer();
+        $this->tokenizer->addFilter('ip', function ($ip) {
+            return filter_var($ip, FILTER_VALIDATE_IP);
+        });
     }
 
     public function provideValidTokens()
@@ -32,6 +35,9 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
             ),
             'word with argument filter' => array(
                 'hello <id:int>'
+            ),
+            'word with custom argument filter' => array(
+                'hello <target:ip>'
             ),
 
             'word with optional word' => array(

@@ -70,6 +70,9 @@ these routes and then executing the registered route callback.
 $router = new Router();
 ```
 
+> Advanced usage: The `Router` accepts an optional [`Tokenizer`](#tokenizer)
+  instance as the first parameter to the constructor.
+
 #### add()
 
 The `add(string $route, callable $handler): Route` method can be used to
@@ -192,6 +195,9 @@ The following predefined filters are currently available:
 * `float` accepts any positive or negative float value, such as `1.5` or `-2.3`
 * `ufloat` accepts any positive (unsigned) float value, such as `1.5` or `0`
 * `bool` accepts any boolean value, such as `yes/true/1` or `no/false/0`
+
+> If you want to add a custom filter function, see also [`Tokenizer`](#tokenizer)
+  for advanced usage below.
 
 You can mark arguments as optional by enclosing them in square brackets like this:
 
@@ -541,6 +547,50 @@ See [`Router`](#router).
 The `NoRouteFoundException` will be raised by [`handleArgv()`](#handleargv)
 or [`handleArgs()`](#handleargs) if no matching route could be found.
 It extends PHP's built-in `RuntimeException`.
+
+### Tokenizer
+
+The `Tokenizer` class is responsible for parsing a route expression into a
+valid token instance.
+This class is mostly used internally and not something you have to worry about
+in most cases.
+
+If you need custom logic for your route expression, you may explicitly pass an
+instance of your `Tokenizer` to the constructor of the `Router`:
+
+```php
+$tokenizer = new Tokenizer();
+
+$router = new Router($tokenizer);
+```
+
+#### addFilter()
+
+The `addFilter(string $name, callable $filter): void` method can be used to
+add a custom filter function.
+
+The filter name can then be used in argument or option expressions such as
+`add <name:lower>` or `--search=<address:ip>`.
+
+The filter function will be invoked with the filter value and MUST return a
+boolean success value if this filter accepts the given value.
+The filter value will be passed by reference, so it can be updated if the
+filtering was successful.
+
+```php
+$tokenizer = new Tokenizer();
+$tokenizer->addFilter('ip', function ($value) {
+    return filter_var($ip, FILTER_VALIDATE_IP);
+});
+$tokenizer->addFilter('lower', function (&$value) {
+    $value = strtolower($value);
+    return true;
+});
+
+$router = new Router($tokenizer);
+$router->add('add <name:lower>', function ($args) { });
+$router->add('--search=<address:ip>', function ($args) { });
+```
 
 ## Install
 

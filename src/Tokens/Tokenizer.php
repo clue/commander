@@ -21,6 +21,18 @@ class Tokenizer
         "\n",
     );
 
+    private $filters = array();
+
+    /**
+     * @param string $name
+     * @param callback $filter
+     * @return void
+     */
+    public function addFilter($name, $filter)
+    {
+        $this->filters[$name] = $filter;
+    }
+
     /**
      * Creates a Token from the given route expression
      *
@@ -117,8 +129,13 @@ class Tokenizer
         $parts = explode(':', $word, 2);
         $word = trim($parts[0]);
         $filter = isset($parts[1]) ? trim($parts[1]) : null;
+        $callback =  null;
 
-        return new ArgumentToken($word, $filter);
+        if ($filter !== null && isset($this->filters[$filter])) {
+            $callback = $this->filters[$filter];
+        }
+
+        return new ArgumentToken($word, $filter, $callback);
     }
 
     private function readOptionalBlock($input, &$i)
