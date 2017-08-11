@@ -1,5 +1,28 @@
 # Changelog
 
+## 1.3.0 (2017-08-11)
+
+*   Feature: Add support for custom filter callbacks
+    (#25 by @clue)
+
+    ```php
+    $tokenizer = new Tokenizer();
+    $tokenizer->addFilter('ip', function ($value) {
+        return filter_var($ip, FILTER_VALIDATE_IP);
+    });
+    $tokenizer->addFilter('lower', function (&$value) {
+        $value = strtolower($value);
+        return true;
+    });
+
+    $router = new Router($tokenizer);
+    $router->add('add <name:lower>', function ($args) { });
+    $router->add('--search=<address:ip>', function ($args) { });
+    ```
+
+*   Improve test suite by locking Travis distro so new future defaults will not break the build
+    (#24 by @clue)
+
 ## 1.2.2 (2017-06-29)
 
 * Fix: Assume argv to be empty if not present (non-CLI SAPI mode)
