@@ -3,7 +3,6 @@
 namespace Clue\Commander\Tokens;
 
 use InvalidArgumentException;
-use Clue\Commander\Filter;
 
 /**
  * The Tokenizer is responsible for breaking down the route expression into an internal syntax tree
@@ -25,7 +24,7 @@ class Tokenizer
 
     /**
      * @param string $name
-     * @param callback $filter
+     * @param callable $filter
      * @return void
      */
     public function addFilter($name, $filter)

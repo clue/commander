@@ -20,7 +20,9 @@ class OptionalToken implements TokenInterface
     public function matches(array &$input, array &$output)
     {
         // try greedy match for sub-token or succeed anyway
-        return $this->token->matches($input, $output) || true;
+        $this->token->matches($input, $output);
+
+        return true;
     }
 
     public function __toString()
