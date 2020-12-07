@@ -1,5 +1,11 @@
 # Changelog
 
+## 1.4.0 (2020-12-07)
+
+*   Improve test suite and add `.gitattributes` to exclude dev files from exports.
+    Add PHP 8 support, update to PHPUnit 9 and simplify test setup.
+    (#26 by @andreybolonin, #27 and #28 by @SimonFrings and #29 by @clue)
+
 ## 1.3.0 (2017-08-11)
 
 *   Feature: Add support for custom filter callbacks

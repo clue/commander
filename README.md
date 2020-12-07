@@ -14,21 +14,32 @@ to execute individual functions depending on the arguments given.
 
 **Table of contents**
 
+* [Support us](#support-us)
 * [Quickstart example](#quickstart-example)
 * [Usage](#usage)
-  * [Router](#router)
-    * [add()](#add)
-    * [remove()](#remove)
-    * [getRoutes()](#getroutes)
-    * [execArgv()](#execargv)
-    * [handleArgv()](#handleargv)
-    * [handleArgs()](#handleargs)
-  * [Route](#route)
-  * [NoRouteFoundException](#noroutefoundexception)
+    * [Router](#router)
+        * [add()](#add)
+        * [remove()](#remove)
+        * [getRoutes()](#getroutes)
+        * [execArgv()](#execargv)
+        * [handleArgv()](#handleargv)
+        * [handleArgs()](#handleargs)
+    * [Route](#route)
+    * [NoRouteFoundException](#noroutefoundexception)
 * [Install](#install)
 * [Tests](#tests)
 * [License](#license)
 * [More](#more)
+
+## Support us
+
+We invest a lot of time developing, maintaining and updating our awesome
+open-source projects. You can help us sustain this high-quality of our work by
+[becoming a sponsor on GitHub](https://github.com/sponsors/clue). Sponsors get
+numerous benefits in return, see our [sponsoring page](https://github.com/sponsors/clue)
+for details.
+
+Let's take these projects to the next level together! 🚀
 
 ### Quickstart example
 
@@ -596,13 +607,14 @@ $router->add('--search=<address:ip>', function ($args) { });
 
 ## Install
 
-The recommended way to install this library is [through Composer](http://getcomposer.org).
-[New to Composer?](http://getcomposer.org/doc/00-intro.md)
+The recommended way to install this library is [through Composer](https://getcomposer.org).
+[New to Composer?](https://getcomposer.org/doc/00-intro.md)
 
+This project follows [SemVer](https://semver.org/).
 This will install the latest supported version:
 
 ```bash
-$ composer require clue/commander:^1.3
+$ composer require clue/commander:^1.4
 ```
 
 See also the [CHANGELOG](CHANGELOG.md) for details about version upgrades.
@@ -615,7 +627,7 @@ It's *highly recommended to use PHP 7+* for this project.
 ## Tests
 
 To run the test suite, you first need to clone this repo and then install all
-dependencies [through Composer](http://getcomposer.org):
+dependencies [through Composer](https://getcomposer.org):
 
 ```bash
 $ composer install
@@ -629,12 +641,15 @@ $ php vendor/bin/phpunit
 
 ## License
 
-MIT
+This project is released under the permissive [MIT license](LICENSE).
+
+> Did you know that I offer custom development services and issuing invoices for
+  sponsorships of releases and for contributions? Contact me (@clue) for details.
 
 ## More
 
 * If you want to build an interactive CLI tool, you may want to look into using
-  [clue/stdio-react](https://github.com/clue/php-stdio-react) in order to react
+  [clue/reactphp-stdio](https://github.com/clue/reactpph-stdio) in order to react
   to commands from STDIN.
 * If you build an interactive CLI tool that reads a command line from STDIN, you
   may want to use [clue/arguments](https://github.com/clue/php-arguments) in
