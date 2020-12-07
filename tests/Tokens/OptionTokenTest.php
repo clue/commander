@@ -1,15 +1,16 @@
 <?php
 
+namespace Clue\Tests\Commander\Tokens;
+
 use Clue\Commander\Tokens\OptionToken;
 use Clue\Commander\Tokens\WordToken;
+use Clue\Tests\Commander\TestCase;
 
-class OptionTokenTest extends PHPUnit_Framework_TestCase
+class OptionTokenTest extends TestCase
 {
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testUnableToCreateOptionWithRequiredValueButNoPlaceholder()
     {
+        $this->setExpectedException('InvalidArgumentException');
         new OptionToken('--name', null, true);
     }
 }

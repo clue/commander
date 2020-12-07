@@ -1,9 +1,11 @@
 <?php
 
+namespace Clue\Tests\Commander;
+
 use Clue\Commander\Router;
 use Clue\Commander\Tokens\Tokenizer;
 
-class RouterTest extends PHPUnit_Framework_TestCase
+class RouterTest extends TestCase
 {
     public function testEmptyRouterHasNoRoutes()
     {
@@ -443,7 +445,6 @@ class RouterTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideNonMatchingRoutes
-     * @expectedException Clue\Commander\NoRouteFoundException
      * @param string $route
      * @param array  $args
      */
@@ -452,6 +453,7 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $router = new Router();
         $router->add($route, 'var_dump');
 
+        $this->setExpectedException('Clue\Commander\NoRouteFoundException');
         $router->handleArgs($args);
     }
 
@@ -485,25 +487,22 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals(array(), $router->getRoutes());
     }
 
-    /**
-     * @expectedException UnderflowException
-     */
     public function testCanNotRemoveRouteWhichHasNotBeenAdded()
     {
         $router = new Router();
         $route = $router->add('hello', function () { });
 
         $router2 = new Router();
+
+        $this->setExpectedException('UnderflowException');
         $router2->remove($route);
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testAddRouteThrowsForInvalidHandler()
     {
         $router = new Router();
 
+        $this->setExpectedException('InvalidArgumentException');
         $router->add('hello', 'invalid');
     }
 
@@ -579,13 +578,11 @@ class RouterTest extends PHPUnit_Framework_TestCase
         $_SERVER = $old;
     }
 
-    /**
-     * @expectedException Clue\Commander\NoRouteFoundException
-     */
     public function testHandleEmptyRouterThrowsUnderflowException()
     {
         $router = new Router();
 
+        $this->setExpectedException('Clue\Commander\NoRouteFoundException');
         $router->handleArgs(array());
     }
 }

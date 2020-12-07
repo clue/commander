@@ -1,11 +1,17 @@
 <?php
 
+namespace Clue\Tests\Commander\Tokens;
+
 use Clue\Commander\Tokens\AlternativeToken;
 use Clue\Commander\Tokens\OptionalToken;
 use Clue\Commander\Tokens\WordToken;
+use Clue\Tests\Commander\TestCase;
 
-class AlternativeTokenTest extends PHPUnit_Framework_TestCase
+class AlternativeTokenTest extends TestCase
 {
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testSupportsAnyTwoTokens()
     {
         new AlternativeToken(array(
@@ -14,19 +20,15 @@ class AlternativeTokenTest extends PHPUnit_Framework_TestCase
         ));
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testRequiresTokens()
     {
+        $this->setExpectedException('InvalidArgumentException');
         new AlternativeToken(array());
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testRequiresValidTokens()
     {
+        $this->setExpectedException('InvalidArgumentException');
         new AlternativeToken(array(
             true,
             false,
