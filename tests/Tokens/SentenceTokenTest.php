@@ -1,10 +1,16 @@
 <?php
 
+namespace Clue\Tests\Commander\Tokens;
+
 use Clue\Commander\Tokens\SentenceToken;
 use Clue\Commander\Tokens\WordToken;
+use Clue\Tests\Commander\TestCase;
 
-class SentenceTokenTest extends PHPUnit_Framework_TestCase
+class SentenceTokenTest extends TestCase
 {
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testSupportsAnyTwoTokens()
     {
         new SentenceToken(array(
@@ -13,11 +19,9 @@ class SentenceTokenTest extends PHPUnit_Framework_TestCase
         ));
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testRequiresValidTokens()
     {
+        $this->setExpectedException('InvalidArgumentException');
         new SentenceToken(array(
             true,
             false,

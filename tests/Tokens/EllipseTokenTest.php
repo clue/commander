@@ -1,10 +1,16 @@
 <?php
 
+namespace Clue\Tests\Commander\Tokens;
+
 use Clue\Commander\Tokens\EllipseToken;
 use Clue\Commander\Tokens\WordToken;
+use Clue\Tests\Commander\TestCase;
 
-class EllipseTokenTest extends PHPUnit_Framework_TestCase
+class EllipseTokenTest extends TestCase
 {
+    /**
+     * @doesNotPerformAssertions
+     */
     public function testSupportsWordToken()
     {
         new EllipseToken(new WordToken('test'));

@@ -1,8 +1,10 @@
 <?php
 
+namespace Clue\Tests\Commander;
+
 use Clue\Commander\Route;
 
-class RouteTest extends PHPUnit_Framework_TestCase
+class RouteTest extends TestCase
 {
     public function testToStringWillReturnStringFromToken()
     {

@@ -13,11 +13,14 @@
     "autoload": {
         "psr-4": { "Clue\\Commander\\": "src/" }
     },
+    "autoload-dev": {
+        "psr-4": { "Clue\\Tests\\Commander\\": "tests/" }
+    },
     "require": {
         "php": ">=5.3"
     },
     "require-dev": {
         "clue/arguments": "^1.0",
-        "phpunit/phpunit": "^5.0 || ^4.8"
+        "phpunit/phpunit": "^9.3 || ^5.7 || ^4.8.35"
     }
 }

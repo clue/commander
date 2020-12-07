@@ -1,12 +1,18 @@
 <?php
 
-use Clue\Commander\Tokens\Tokenizer;
+namespace Clue\Tests\Commander\Tokens;
 
-class TokenizerTest extends PHPUnit_Framework_TestCase
+use Clue\Commander\Tokens\Tokenizer;
+use Clue\Tests\Commander\TestCase;
+
+class TokenizerTest extends TestCase
 {
     private $tokenizer;
 
-    public function setUp()
+    /**
+     * @before
+     */
+    public function setUpTokenizer()
     {
         $this->tokenizer = new Tokenizer();
         $this->tokenizer->addFilter('ip', function ($ip) {
@@ -245,11 +251,11 @@ class TokenizerTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider provideInvalidTokens
-     * @expectedException InvalidArgumentException
      * @param string $expression
      */
     public function testInvalidTokens($expression)
     {
+        $this->setExpectedException('InvalidArgumentException');
         $this->tokenizer->createToken($expression);
     }
 

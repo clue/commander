@@ -1,30 +1,27 @@
 <?php
 
-use Clue\Commander\Tokens\ArgumentToken;
+namespace Clue\Tests\Commander\Tokens;
 
-class ArgumentTokenTest extends PHPUnit_Framework_TestCase
+use Clue\Commander\Tokens\ArgumentToken;
+use Clue\Tests\Commander\TestCase;
+
+class ArgumentTokenTest extends TestCase
 {
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testCtorThrowsWithUnknownFilter()
     {
+        $this->setExpectedException('InvalidArgumentException');
         new ArgumentToken('name', 'unknown');
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testCtorThrowsWithInvalidCallable()
     {
+        $this->setExpectedException('InvalidArgumentException');
         new ArgumentToken('name', 'filter', 'nope');
     }
 
-    /**
-     * @expectedException InvalidArgumentException
-     */
     public function testCtorThrowsWithoutFilterButWithCallable()
     {
+        $this->setExpectedException('InvalidArgumentException');
         new ArgumentToken('name', null, function () { });
     }
 
