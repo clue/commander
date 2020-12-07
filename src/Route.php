@@ -16,6 +16,7 @@ use InvalidArgumentException;
 class Route implements TokenInterface
 {
     private $token;
+    private $handler;
 
     /**
      * Instantiate new Router object
@@ -70,7 +71,7 @@ class Route implements TokenInterface
      *
      * @param array $args the callback arguments ($output args aquired by matching route tokens)
      * @return mixed returns whatever the callback handler returns
-     * @throws Exception throws any exception the callback handler may throw
+     * @throws \Exception throws any exception the callback handler may throw
      */
     public function __invoke(array $args)
     {
