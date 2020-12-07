@@ -1,4 +1,6 @@
-# clue/commander [![Build Status](https://travis-ci.org/clue/php-commander.svg?branch=master)](https://travis-ci.org/clue/php-commander)
+# clue/commander
+
+[![CI status](https://github.com/clue/php-commander/workflows/CI/badge.svg)](https://github.com/clue/php-commander/actions)
 
 Finally a sane way to register available commands and arguments and match your command line in PHP.
 
