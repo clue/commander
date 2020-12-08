@@ -1,6 +1,6 @@
 # clue/commander
 
-[![CI status](https://github.com/clue/php-commander/workflows/CI/badge.svg)](https://github.com/clue/php-commander/actions)
+[![CI status](https://github.com/clue/commander/workflows/CI/badge.svg)](https://github.com/clue/commander/actions)
 
 Finally a sane way to register available commands and arguments and match your command line in PHP.
 
@@ -512,7 +512,7 @@ assert($length === 4);
 The arguments have to be given as an array of individual elements. If you
 only have a command line string that you want to split into an array of
 individual command line arguments, consider using
-[clue/arguments](https://github.com/clue/php-arguments).
+[clue/arguments](https://github.com/clue/arguments).
 
 ```php
 $line = fgets(STDIN, 2048);
@@ -649,8 +649,8 @@ This project is released under the permissive [MIT license](LICENSE).
 ## More
 
 * If you want to build an interactive CLI tool, you may want to look into using
-  [clue/reactphp-stdio](https://github.com/clue/reactpph-stdio) in order to react
+  [clue/reactphp-stdio](https://github.com/clue/reactphp-stdio) in order to react
   to commands from STDIN.
 * If you build an interactive CLI tool that reads a command line from STDIN, you
-  may want to use [clue/arguments](https://github.com/clue/php-arguments) in
+  may want to use [clue/arguments](https://github.com/clue/arguments) in
   order to split this string up into its individual arguments.
