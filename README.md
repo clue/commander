@@ -1,6 +1,7 @@
 # clue/commander
 
 [![CI status](https://github.com/clue/commander/workflows/CI/badge.svg)](https://github.com/clue/commander/actions)
+[![installs on Packagist](https://img.shields.io/packagist/dt/clue/commander?color=blue&label=installs%20on%20Packagist)](https://packagist.org/packages/clue/commander)
 
 Finally a sane way to register available commands and arguments and match your command line in PHP.
 
